@@ -274,8 +274,28 @@ const server = http.createServer(async (req, res) => {
   const startTime = Date.now();
   const db = getDb();
 
-  try {
-    // ===== STATIC FILES (uploads) =====
+    // ===== HEALTH CHECK (for Render) =====
+    if (url.pathname === '/health' || url.pathname === '/') {
+      if (url.pathname === '/health') {
+        sendJson(res, 200, { status: 'ok', uptime: process.uptime() });
+        return;
+      }
+      // For root path, serve index.html
+      const indexPath = path.join(frontendDir, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        serveStaticFile(res, indexPath);
+        return;
+      }
+      // Fallback: try home.html
+      const homePath = path.join(frontendDir, 'home.html');
+      if (fs.existsSync(homePath)) {
+        serveStaticFile(res, homePath);
+        return;
+      }
+      sendJson(res, 404, { message: 'Frontend fayllari topilmadi', frontendDir: frontendDir });
+      return;
+    }
+
     if (url.pathname.startsWith('/uploads/')) {
       const filePath = path.join(uploadsDir, path.basename(url.pathname));
       if (!filePath.startsWith(uploadsDir)) {

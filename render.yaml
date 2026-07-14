@@ -7,7 +7,7 @@ services:
     plan: free
     buildCommand: cd backend && npm install
     startCommand: cd backend && node server.js
-    healthCheckPath: /
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
