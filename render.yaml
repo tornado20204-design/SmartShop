@@ -5,8 +5,8 @@ services:
     env: node
     region: frankfurt
     plan: free
-    buildCommand: cd backend && npm install
-    startCommand: cd backend && node server.js
+    buildCommand: npm install && cd backend && npm install
+    startCommand: node backend/server.js
     healthCheckPath: /health
     envVars:
       - key: NODE_ENV
