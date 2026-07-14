@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartShop | Buyurtma Kuzatuvi</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="header">
+      <a href="home.html" class="logo">SmartShop</a>
+      <nav class="nav">
+        <a href="home.html">Bosh sahifa</a>
+        <a href="products.html">Mahsulotlar</a>
+        <a href="cart.html">Savat</a>
+        <a class="user-link" id="user-link" href="account.html">Akaunt</a>
+      </nav>
+      <div class="header-actions">
+        <div class="user-info" id="user-info">Yuklanmoqda...</div>
+        <a class="cart-button" href="cart.html" id="cart-nav-btn">
+          <span>🛒</span> Savat (0)
+        </a>
+      </div>
+    </header>
+
+    <main>
+      <div class="tracking-card">
+          <h2 style="color: white; margin-bottom: 8px; font-size: 1.6rem; display: flex; align-items: center; gap: 8px;">
+          <span>⚡</span> Buyurtma Kuzatuvi (Hamkor kuryer)
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px;">
+          Buyurtma ID: <span id="track-order-id" style="color: white; font-weight: 700;">#000000</span> | Manzil: <span id="track-order-address" style="color: var(--text-main);">Yuklanmoqda...</span>
+        </p>
+
+        <!-- Payment Simulation Panel -->
+        <div id="webhook-simulation-panel" style="display: none; background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.2); padding: 16px; border-radius: 12px; margin-bottom: 24px; text-align: center;">
+          <div style="font-size: 0.85rem; color: #fbbf24; font-weight: 600; text-transform: uppercase; margin-bottom: 6px;">To'lov Kutilmoqda</div>
+          <p style="font-size: 0.9rem; color: var(--text-main); margin-bottom: 12px;">Ushbu buyurtma uchun hali to'lov amalga oshirilmagan.</p>
+          <button id="btn-simulate-webhook" style="background: #fbbf24; color: #111827; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.88rem; transition: opacity 0.2s;">
+            To'lovni simulyatsiya qilish (Mock Webhook)
+          </button>
+        </div>
+
+        <!-- Live Estimate Timer -->
+        <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.2); padding: 16px; border-radius: 12px; margin-bottom: 24px; text-align: center;">
+            <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Taxminiy yetkazish vaqti</div>
+          <div id="track-timer" style="font-size: 2rem; font-weight: 800; color: var(--primary); margin: 6px 0;">30 daqiqa</div>
+          <div id="track-status-message" style="font-size: 0.9rem; color: var(--text-main); font-weight: 600;">Kuryer buyurtmangizni tayyorlamoqda</div>
+        </div>
+
+        <!-- SVG Map scooter animation -->
+        <div class="tracking-map-visual">
+          <div class="road-line"></div>
+          <div class="icon-marker marker-store" title="SmartShop do'koni">🏪</div>
+          <div class="animated-scooter" id="delivery-scooter">🛵</div>
+          <div class="icon-marker marker-home" title="Sizning manzilingiz">🏠</div>
+        </div>
+
+        <!-- Courier Details Card -->
+        <div id="courier-card" style="display: flex; align-items: center; gap: 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 16px; border-radius: 16px; margin-bottom: 30px;">
+          <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">👨🏻‍✈️</div>
+          <div style="text-align: left; flex-grow: 1;">
+            <h4 id="courier-name" style="color: white; margin-bottom: 2px;">Kuryer tayinlanmoqda...</h4>
+            <p id="courier-vehicle" style="font-size: 0.85rem; color: var(--text-muted);">Skuter yoki Velosiped</p>
+          </div>
+          <div style="text-align: right;">
+            <a id="courier-phone" href="#" style="background: rgba(16, 185, 129, 0.12); color: var(--success); text-decoration: none; padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.2);">Qo'ng'iroq qilish</a>
+          </div>
+        </div>
+
+        <!-- Timeline steps -->
+        <div class="tracking-timeline">
+          <div class="timeline-node" id="node-preparing">
+            <div class="node-dot">1</div>
+            <div class="node-label">Tayyorlanmoqda</div>
+          </div>
+          <div class="timeline-node" id="node-assigned">
+            <div class="node-dot">2</div>
+            <div class="node-label">Tayinlandi</div>
+          </div>
+          <div class="timeline-node" id="node-onway">
+            <div class="node-dot">3</div>
+            <div class="node-label">Yo'lda</div>
+          </div>
+          <div class="timeline-node" id="node-delivered">
+            <div class="node-dot">4</div>
+            <div class="node-label">Yetkazildi</div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2026 SmartShop Savdo Platformasi. Barcha huquqlar himoyalangan.</p>
+    </footer>
+
+    <!-- Toast Notifications container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="script.js"></script>
+    <script>
+      // Live delivery tracking simulation
+      document.addEventListener('DOMContentLoaded', async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = Number(urlParams.get('orderId'));
+        if (!orderId) {
+          window.location.href = 'account.html';
+          return;
+        }
+
+        const trackOrderId = document.getElementById('track-order-id');
+        const trackAddress = document.getElementById('track-order-address');
+        const trackTimer = document.getElementById('track-timer');
+        const trackStatusMsg = document.getElementById('track-status-message');
+        const courierName = document.getElementById('courier-name');
+        const courierVehicle = document.getElementById('courier-vehicle');
+        const courierPhone = document.getElementById('courier-phone');
+        const scooter = document.getElementById('delivery-scooter');
+
+        const nodePrep = document.getElementById('node-preparing');
+        const nodeAssign = document.getElementById('node-assigned');
+        const nodeOnWay = document.getElementById('node-onway');
+        const nodeDelivered = document.getElementById('node-delivered');
+
+        trackOrderId.textContent = `#${orderId}`;
+
+        // Fetch order details
+        let order = null;
+        try {
+          const apiBase = window.location.protocol === 'file:' ? 'http://localhost:3000' : '';
+          const response = await fetch(`${apiBase}/api/orders`);
+          const allOrders = await response.json();
+          order = allOrders.find(o => o.id === orderId);
+
+          if (!order) {
+            trackAddress.textContent = "Buyurtma topilmadi";
+            return;
+          }
+
+          trackAddress.textContent = order.customerAddress;
+
+          // Check if pending payment
+          if (order.status === "To'lov kutilmoqda") {
+            const simPanel = document.getElementById('webhook-simulation-panel');
+            if (simPanel) {
+              simPanel.style.display = 'block';
+              document.getElementById('btn-simulate-webhook').onclick = async () => {
+                const btn = document.getElementById('btn-simulate-webhook');
+                btn.textContent = '⏳ Yuborilmoqda...';
+                btn.disabled = true;
+                try {
+                  const webhookRes = await fetch(`${apiBase}/api/payment/webhook`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ transactionId: order.transactionId, status: 'completed' })
+                  });
+                  const webhookData = await webhookRes.json();
+                  if (webhookRes.ok && webhookData.success) {
+                    showToast("To'lov muvaffaqiyatli yakunlandi!");
+                    setTimeout(() => {
+                      window.location.reload();
+                    }, 1000);
+                  } else {
+                    showToast(webhookData.message || "To'lovda xato", "error");
+                    btn.textContent = "To'lovni simulyatsiya qilish (Mock Webhook)";
+                    btn.disabled = false;
+                  }
+                } catch(err) {
+                  showToast("Xatolik yuz berdi", "error");
+                  btn.textContent = "To'lovni simulyatsiya qilish (Mock Webhook)";
+                  btn.disabled = false;
+                }
+              };
+            }
+
+            document.getElementById('courier-card').style.display = 'none';
+            scooter.parentElement.style.display = 'none';
+            trackTimer.parentElement.innerHTML = `
+              <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Taxminiy yetkazish vaqti</div>
+              <div style="font-size: 2rem; font-weight: 800; color: #fbbf24; margin: 6px 0;">To'lov Kutilmoqda</div>
+              <p style="font-size: 0.9rem; color: var(--text-muted);">Ushbu buyurtma uchun to'lov amalga oshirilgandan so'ng kuzatuv boshlanadi.</p>
+            `;
+            return;
+          }
+
+          if (order.deliveryMethod !== 'courier') {
+            document.getElementById('courier-card').style.display = 'none';
+            scooter.parentElement.style.display = 'none';
+            trackTimer.parentElement.innerHTML = `
+              <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Olib ketish punkti</div>
+              <div style="font-size: 1.4rem; font-weight: 800; color: var(--success); margin: 6px 0;">${order.pickupPoint || 'Bosh tarqatish punkti'}</div>
+              <p style="font-size: 0.9rem; color: var(--text-muted);">Buyurtmangiz kelgandan so'ng 5 kun ichida olib ketishingiz mumkin.</p>
+            `;
+            // Simple timeline highlight
+            nodePrep.className = 'timeline-node completed';
+            nodeAssign.className = 'timeline-node completed';
+            nodeOnWay.className = 'timeline-node completed';
+            nodeDelivered.className = 'timeline-node active';
+            nodeDelivered.querySelector('.node-label').textContent = 'Olib ketishga tayyor';
+            return;
+          }
+
+          // Set courier info
+          courierName.textContent = order.courierName || 'Kuryer Solihov';
+          courierVehicle.textContent = order.courierVehicle || 'Oq Honda Scooter';
+          courierPhone.href = `tel:${order.courierPhone || '+998995553210'}`;
+
+        } catch (e) {
+          trackAddress.textContent = "Yuklashda xato";
+          return;
+        }
+
+        // Live simulation loop
+        const originalEstMinutes = order.estimatedDeliveryTime || 30;
+        
+        const updateTracker = () => {
+          const now = Date.now();
+          const elapsedSeconds = Math.floor((now - order.id) / 1000);
+
+          // Reset styles
+          nodePrep.className = 'timeline-node';
+          nodeAssign.className = 'timeline-node';
+          nodeOnWay.className = 'timeline-node';
+          nodeDelivered.className = 'timeline-node';
+
+          let stage = 'preparing';
+          let progressPercent = 0; // 0 to 100 % of travel path
+
+          if (elapsedSeconds < 10) {
+            stage = 'preparing';
+            progressPercent = 0;
+            nodePrep.className = 'timeline-node active';
+            trackTimer.textContent = `${originalEstMinutes} daqiqa`;
+            trackStatusMsg.textContent = 'SmartShop do\'koni buyurtmangizni tayyorlamoqda...';
+          } else if (elapsedSeconds < 25) {
+            stage = 'assigned';
+            progressPercent = 0;
+            nodePrep.className = 'timeline-node completed';
+            nodeAssign.className = 'timeline-node active';
+            trackTimer.textContent = `${originalEstMinutes} daqiqa`;
+            trackStatusMsg.textContent = `Kuryer ${order.courierName} buyurtmani qabul qildi va do'konga keldi!`;
+          } else if (elapsedSeconds < 55) {
+            stage = 'on_the_way';
+            // Travel animation between 0% and 100% of the road
+            const travelElapsed = elapsedSeconds - 25;
+            progressPercent = Math.min(100, (travelElapsed / 30) * 100);
+            
+            nodePrep.className = 'timeline-node completed';
+            nodeAssign.className = 'timeline-node completed';
+            nodeOnWay.className = 'timeline-node active';
+
+            // Countdown timer dynamically
+            const minsRemaining = Math.max(1, Math.round(originalEstMinutes - (travelElapsed / 30) * originalEstMinutes));
+            trackTimer.textContent = `${minsRemaining} daqiqa`;
+            trackStatusMsg.textContent = `Kuryer uyingiz tomon harakatlanmoqda. Skuterda yaqinlashmoqda...`;
+          } else {
+            stage = 'delivered';
+            progressPercent = 100;
+            nodePrep.className = 'timeline-node completed';
+            nodeAssign.className = 'timeline-node completed';
+            nodeOnWay.className = 'timeline-node completed';
+            nodeDelivered.className = 'timeline-node completed';
+            trackTimer.textContent = 'Yetkazildi!';
+            trackTimer.style.color = 'var(--success)';
+            trackStatusMsg.textContent = 'Buyurtma muvaffaqiyatli yetkazildi. Yoqimli ishtaha!';
+          }
+
+          // Scooter movement logic (left offset calculation)
+          // Map road starting left (45px) to right (calc(100% - 80px))
+          const roadWidthContainer = scooter.parentElement.clientWidth;
+          const startLeft = 45;
+          const endLeft = roadWidthContainer - 80;
+          const currentLeft = startLeft + (progressPercent / 100) * (endLeft - startLeft);
+          scooter.style.left = `${currentLeft}px`;
+        };
+
+        // Initialize and run interval
+        updateTracker();
+        const trackerInterval = setInterval(updateTracker, 1000);
+
+        // Cancel interval if leaving page
+        window.addEventListener('beforeunload', () => {
+          clearInterval(trackerInterval);
+        });
+      });
+    </script>
+  </body>
+</html>

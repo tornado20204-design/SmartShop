@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartShop | Savat</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  </head>
+  <body>
+    <header class="header">
+      <a href="home.html" class="logo">SmartShop</a>
+      <nav class="nav">
+        <a href="home.html">Bosh sahifa</a>
+        <a href="products.html">Mahsulotlar</a>
+        <a href="cart.html" class="active">Savat</a>
+        <a class="user-link" id="user-link" href="account.html">Akaunt</a>
+      </nav>
+      <div class="header-actions">
+        <div class="user-info" id="user-info">Yuklanmoqda...</div>
+        <a class="cart-button" href="cart.html" id="cart-nav-btn">
+          <span>🛒</span> Savat (0)
+        </a>
+      </div>
+    </header>
+
+    <main>
+      <div class="cart-page-container">
+        <!-- Left Side: Cart Items -->
+        <section class="cart-items-section">
+          <div class="cart-header">
+            <h2>Sizning savatingiz</h2>
+          </div>
+          <ul id="cart-list" class="cart-list">
+            <!-- Dynamically populated via JS -->
+            <div class="empty-state">
+              <div class="empty-state-icon">🛒</div>
+              <p>Savatingiz hozircha bo'sh.</p>
+              <a href="products.html" class="primary-btn" style="margin-top: 16px;">Mahsulotlarni ko'rish</a>
+            </div>
+          </ul>
+        </section>
+
+        <!-- Right Side: Order Summary & Checkout -->
+        <section class="cart-checkout-section" id="checkout-section" style="display: none;">
+          <div class="cart-header">
+            <h2>Buyurtma hisobi</h2>
+          </div>
+
+          <!-- Olib ketish nuqtasi vs Hamkor kuryer Tabs -->
+          <div class="delivery-tabs">
+            <button type="button" class="delivery-tab-btn active" id="btn-delivery-pickup">Olib ketish (shartnoma nuqtasi)</button>
+            <button type="button" class="delivery-tab-btn" id="btn-delivery-courier">Hamkor kuryer (shartnoma)</button>
+          </div>
+
+          <div class="checkout-summary">
+            <div class="checkout-summary-row">
+              <span>Mahsulotlar summasi:</span>
+              <span id="checkout-subtotal">$0.00</span>
+            </div>
+            <div class="checkout-summary-row" id="row-promo-discount" style="display: none; color: var(--danger);">
+              <span>Chegirma (Promo-kod):</span>
+              <span id="checkout-discount">-$0.00</span>
+            </div>
+            <div class="checkout-summary-row">
+              <span>Yetkazib berish:</span>
+              <span id="checkout-shipping">Bepul (Olib ketish nuqtasi)</span>
+            </div>
+            <div class="checkout-total-row">
+              <span>Jami:</span>
+              <span id="checkout-total" class="checkout-total-price">$0.00</span>
+            </div>
+          </div>
+
+          <!-- Promo Code Input -->
+          <div style="margin: 16px 0; padding-bottom: 16px; border-bottom: 1px dashed var(--border-color);">
+            <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 6px;">Promo-kod</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="checkout-promo-code" placeholder="PROMO20 (20% chegirma)" style="flex: 1; padding: 10px; background: rgba(11, 15, 25, 0.4); border: 1px solid var(--border-color); border-radius: 10px; color: white; font-family: inherit; font-size: 0.9rem;" />
+              <button type="button" id="btn-apply-promo" style="padding: 10px 16px; background: var(--primary); border: none; border-radius: 10px; font-weight: 700; cursor: pointer; color: white; transition: background 0.2s;">Faollash</button>
+            </div>
+            <p id="promo-message" style="font-size: 0.8rem; margin-top: 6px; font-weight: 600; display: none;"></p>
+          </div>
+
+          <!-- Checkout Form -->
+          <form id="checkout-form" class="checkout-form">
+            <!-- Hidden field for delivery method -->
+            <input type="hidden" id="checkout-delivery-method" value="pickup" />
+
+            <div class="form-group">
+              <label for="checkout-name">To'liq ismingiz</label>
+              <input type="text" id="checkout-name" placeholder="Ism va familiya" required />
+            </div>
+            <div class="form-group">
+              <label for="checkout-phone">Telefon raqamingiz</label>
+              <input type="tel" id="checkout-phone" placeholder="+998 (90) 123-45-67" required />
+            </div>
+
+            <!-- Conditional input: Pickup points dropdown -->
+            <div class="form-group" id="group-pickup">
+              <label for="checkout-pickup-point">Olib ketish punkti</label>
+              <select id="checkout-pickup-point" class="filter-select" style="background: rgba(11, 15, 25, 0.6); padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-main); font-family: inherit;">
+                <option value="Toshkent, Chilonzor (Alisher Navoiy ko'chasi, 24)">Toshkent, Chilonzor (Alisher Navoiy ko'chasi, 24)</option>
+                <option value="Toshkent, Yunusobod (Amir Temur ko'chasi, 10)">Toshkent, Yunusobod (Amir Temur ko'chasi, 10)</option>
+                <option value="Samarqand, Registon (Universitet xiyoboni, 4)">Samarqand, Registon (Universitet xiyoboni, 4)</option>
+              </select>
+            </div>
+
+            <!-- Conditional input: Address field -->
+            <div class="form-group" id="group-courier" style="display: none;">
+              <label for="checkout-address" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <span>Yetkazib berish manzili (Hamkor kuryer)</span>
+                <button type="button" id="btn-get-location" class="location-btn">
+                  📍 Aniq joylashuvni aniqlash
+                </button>
+              </label>
+              <input type="text" id="checkout-address" placeholder="Shahar, tuman, ko'cha, uy/kvartira" />
+              <p id="location-status" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; display: none;"></p>
+              
+              <!-- Interactive Map Container -->
+              <div id="checkout-map"></div>
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Xaritadan kerakli joyni bosib yoki markerni sudrab qo'lda ham belgilashingiz mumkin.</p>
+            </div>
+
+            <!-- Payment Method & Installments -->
+            <div class="form-group" style="margin-top: 16px;">
+              <label for="checkout-payment-method">To'lov usuli</label>
+              <select id="checkout-payment-method" class="filter-select" style="background: rgba(11, 15, 25, 0.6); padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-main); font-family: inherit; width: 100%;">
+                <option value="full">To'liq to'lov (Naqd / Karta)</option>
+                <option value="payme">Payme (Elektron to'lov)</option>
+                <option value="click">Click (Elektron to'lov)</option>
+                <option value="nasiya-3">Muddatli to'lov (3 oy)</option>
+                <option value="nasiya-6">Muddatli to'lov (6 oy)</option>
+                <option value="nasiya-12">Muddatli to'lov (12 oy)</option>
+              </select>
+            </div>
+            <div id="nasiya-calculation-box" style="display: none; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.2); padding: 12px; border-radius: 10px; margin-top: 10px; font-size: 0.85rem; text-align: left;">
+              Oylik to'lov: <strong style="color: #fbbf24; font-size: 1rem;" id="nasiya-monthly-pay">$0.00</strong> (0% ustama bilan)
+            </div>
+
+            <button type="submit" class="submit-checkout-btn" style="margin-top: 16px; width: 100%;">Buyurtma berish</button>
+          </form>
+        </section>
+      </div>
+    </main>
+
+    <!-- Toast Notifications container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <footer>
+      <p>&copy; 2026 SmartShop Savdo Platformasi. Barcha huquqlar himoyalangan.</p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

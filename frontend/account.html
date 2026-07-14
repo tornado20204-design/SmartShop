@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartShop | Akaunt</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  </head>
+  <body>
+    <header class="header">
+      <a href="home.html" class="logo">SmartShop</a>
+      <nav class="nav">
+        <a href="home.html">Bosh sahifa</a>
+        <a href="products.html">Mahsulotlar</a>
+        <a href="cart.html">Savat</a>
+        <a class="user-link active" id="user-link" href="account.html">Akaunt</a>
+      </nav>
+      <div class="header-actions">
+        <div class="user-info" id="user-info">Yuklanmoqda...</div>
+        <a class="cart-button" href="cart.html" id="cart-nav-btn">
+          <span>🛒</span> Savat (0)
+        </a>
+      </div>
+    </header>
+
+    <main>
+      <!-- Authentication Container (Visible when logged out) -->
+      <div class="auth-page" id="auth-forms-container" style="max-width: 450px; margin: 40px auto; display: block;">
+        <section class="auth-card">
+          <!-- Tab Buttons -->
+          <div class="auth-tabs">
+            <button type="button" id="tab-login" class="auth-tab active">Kirish</button>
+            <button type="button" id="tab-register" class="auth-tab">Ro'yxatdan o'tish</button>
+          </div>
+
+          <div style="margin: 18px 0; text-align: center;">
+            <input id="telegram-bot-username" type="text" placeholder="@SmartShopBot" style="width: 100%; max-width: 320px; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); background: rgba(11, 15, 25, 0.7); color: white; font-size: 0.95rem;" />
+            <p style="margin-top: 10px; color: var(--text-muted); font-size: 0.9rem;">Telegram bot username-ni kiriting va keyin bot orqali kirish/ro'yxatdan o'tishni bosing.</p>
+          </div>
+
+          <!-- Login Section -->
+          <div id="login-section">
+            <form id="login-form">
+              <input id="login-email" type="text" placeholder="Email yoki Login (ID)" required />
+              <input id="login-password" type="password" placeholder="Parol" required />
+              <button type="submit">Kirish</button>
+            </form>
+            <div style="margin: 18px 0; text-align: center;">
+              <button type="button" id="telegram-login-btn" style="width: 100%; max-width: 320px; padding: 12px; background: #0088cc; border: none; color: white; border-radius: 10px; font-weight: 700; cursor: pointer;">Telegram orqali kirish</button>
+              <p style="margin-top: 10px; color: var(--text-muted); font-size: 0.9rem;">Botga o'ting va hisobingizni tasdiqlang. Keyin saytga qayting.</p>
+            </div>
+            <p id="login-message" class="message"></p>
+            <p style="text-align: right; margin-top: 8px;"><a href="#" id="forgot-password-link" style="color: var(--primary); font-size: 0.9rem; text-decoration: none;">Parolni unutdingizmi?</a></p>
+            <p class="auth-toggle-text">Akauntingiz yo'qmi? <a href="#" id="go-to-register">Ro'yxatdan o'tish</a></p>
+          </div>
+
+          <!-- Forgot Password Section -->
+          <div id="forgot-password-section" style="display: none; text-align: left;">
+            <h3 style="color: white; margin-bottom: 12px; font-size: 1.2rem; text-align: center;">Parolni Tiklash</h3>
+            
+            <form id="forgot-password-form">
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px; text-align: center;">Emailingizni kiriting. Biz sizga tasdiqlash kodini yuboramiz.</p>
+              <input id="forgot-email" type="email" placeholder="Email" required />
+              <button type="submit">Kod yuborish</button>
+            </form>
+
+            <form id="reset-password-form" style="display: none; margin-top: 16px;">
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px; text-align: center;">Pochtangizga kelgan kodni va yangi parolni kiriting.</p>
+              <input id="reset-code" type="text" placeholder="Tasdiqlash kodi" required />
+              <input id="reset-new-password" type="password" placeholder="Yangi parol (kamida 8 belgi)" minlength="8" required />
+              <button type="submit">Parolni yangilash</button>
+            </form>
+
+            <p id="forgot-message" class="message" style="margin-top: 12px; text-align: center;"></p>
+            <p class="auth-toggle-text"><a href="#" id="back-to-login">Orqaga (Kirish qismiga)</a></p>
+          </div>
+
+          <!-- Register Section -->
+          <div id="register-section" style="display: none;">
+            <!-- Register Step 1: Phone Only -->
+            <form id="register-form-step-1">
+              <input id="register-phone" type="tel" placeholder="Telefon raqami (+998...)" required />
+
+              <!-- Seller Toggle Option -->
+              <div style="margin: 15px 0; text-align: left; background: rgba(11, 15, 25, 0.4); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px;">
+                <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; color: white;">
+                  <input type="checkbox" id="register-is-seller" style="width: auto; margin: 0;" />
+                  <span>Sotuvchi sifatida ro'yxatdan o'tish (KYC)</span>
+                </label>
+              </div>
+
+              <!-- KYC fields (hidden by default) -->
+              <div id="kyc-fields-container" style="display: none; text-align: left; background: rgba(11, 15, 25, 0.6); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h4 style="color: white; margin-bottom: 12px; font-size: 0.95rem; border-bottom: 1px solid var(--border-color); padding-bottom: 6px;">Sotuvchi KYC ma'lumotlari</h4>
+                
+                <div class="form-group" style="margin-bottom: 12px;">
+                  <label for="kyc-passport" style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Pasport seriya va raqami</label>
+                  <input type="text" id="kyc-passport" placeholder="AA1234567" />
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 12px;">
+                  <label for="kyc-birthdate" style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Tug'ilgan sana</label>
+                  <input type="date" id="kyc-birthdate" style="color-scheme: dark;" />
+                </div>
+
+                <div class="form-group" style="margin-bottom: 12px;">
+                  <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Sotuvchi turi</label>
+                  <div style="display: flex; gap: 15px; color: white;">
+                    <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 0.85rem;">
+                      <input type="radio" name="kyc-seller-type" value="jismoniy" checked style="width: auto; margin: 0;" /> Jismoniy shaxs
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 0.85rem;">
+                      <input type="radio" name="kyc-seller-type" value="yuridik" style="width: auto; margin: 0;" /> Yuridik shaxs
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 12px;">
+                  <label for="kyc-passport-photo" style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Pasport nusxasi (Rasm faylini yuklash)</label>
+                  <input type="file" id="kyc-passport-photo" accept="image/*" />
+                </div>
+
+                <div class="form-group" style="margin-bottom: 4px;">
+                  <label for="kyc-selfie-photo" style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Selfi rasmi (Rasm faylini yuklash)</label>
+                  <input type="file" id="kyc-selfie-photo" accept="image/*" />
+                </div>
+              </div>
+
+              <button type="submit">Ro'yxatdan o'tish (SMS Kod yuborish)</button>
+
+              <div style="margin: 18px 0; text-align: center;">
+                <button type="button" id="telegram-register-btn" style="width: 100%; max-width: 320px; padding: 12px; background: #0088cc; border: none; color: white; border-radius: 10px; font-weight: 700; cursor: pointer;">Telegram orqali ro'yxatdan o'tish</button>
+                <p style="margin-top: 10px; color: var(--text-muted); font-size: 0.9rem;">Botga o'ting va telefon raqamingizni tasdiqlang, so'ng saytga qaytib kodni kiriting.</p>
+              </div>
+            </form>
+
+            <!-- Register Step 2: Name, Email, Password -->
+            <form id="register-form-step-2" style="display: none; text-align: left;">
+              <h3 style="color: white; margin-bottom: 12px; font-size: 1.1rem; text-align: center;">Qolgan ma'lumotlarni to'ldiring</h3>
+              <input id="register-name" type="text" placeholder="Ismingiz" required />
+              <input id="register-email" type="email" placeholder="Email" required />
+              <input id="register-password" type="password" placeholder="Parol (kamida 8 belgi)" minlength="8" required />
+              <button type="submit" style="margin-top: 12px;">Ro'yxatdan o'tishni yakunlash</button>
+            </form>
+
+            <p id="register-message" class="message"></p>
+            <p class="auth-toggle-text">Sizda allaqachon akaunt bormi? <a href="#" id="go-to-login">Kirish</a></p>
+          </div>
+        </section>
+      </div>
+
+      <!-- Customer Dashboard (Visible when logged in as user) -->
+      <div class="profile-container" id="user-container" style="display: none;">
+        <!-- Left: Shaxsiy Ma'lumotlar -->
+        <section class="profile-card">
+          <div class="profile-avatar" id="user-avatar-letters">U</div>
+          <h3 id="user-name">Foydalanuvchi</h3>
+          <p class="email" id="user-email">user@example.com</p>
+          <div style="margin-top: 10px; font-size: 0.85rem; color: var(--text-muted); text-align: center;">
+            Karta / Hisob: <strong id="user-bank-display" style="color: white;">Kiritilmagan</strong>
+          </div>
+          
+          <!-- Cashback Wallet Widget -->
+          <div style="margin-top: 20px; padding: 12px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; text-align: center;">
+            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Keshbek Hamyoni</div>
+            <div id="user-wallet-balance" style="font-size: 1.3rem; font-weight: 800; color: var(--success); margin-top: 4px;">$0.00</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px;">Har bir xariddan 5% keshbek</div>
+          </div>
+
+          <button id="user-edit-profile-btn" style="margin-top: 16px; width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--primary); background: transparent; color: var(--primary); cursor: pointer; font-weight: bold;">Profilni tahrirlash</button>
+          <button id="user-logout-button" class="logout-btn" style="margin-top: 8px; width: 100%;">Profildan chiqish</button>
+        </section>
+
+        <!-- Right: Buyurtmalar tarixi & Muddatli to'lovlar & Sevimlilar -->
+        <div class="dashboard-details">
+          <section class="orders-card">
+            <h2>📦 Buyurtmalar tarixi</h2>
+            <div id="order-history-list" class="order-history-list">
+              <!-- Dynamically populated via JS -->
+              <p style="color: var(--text-muted);">Sizda hozircha buyurtmalar tarixi mavjud emas.</p>
+            </div>
+          </section>
+
+          <!-- Wishlist Section -->
+          <section class="orders-card" style="margin-top: 24px;">
+            <h2>❤️ Sevimli mahsulotlar</h2>
+            <div id="user-wishlist-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-top: 16px;">
+              <p style="color: var(--text-muted); grid-column: 1/-1;">Sevimlilarga mahsulot qo'shmagansiz.</p>
+            </div>
+          </section>
+
+          <!-- Nasiya (installments) Active List -->
+          <section class="orders-card" style="margin-top: 24px;">
+              <h2>⏳ Muddatli to'lovlar (Nasiya)</h2>
+            <div id="user-nasiya-list" class="order-history-list" style="margin-top: 16px;">
+              <!-- Dynamically populated via JS -->
+              <p style="color: var(--text-muted);">Sizda faol muddatli to'lovlar (nasiya) mavjud emas.</p>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- Seller Dashboard (Visible when logged in as seller) -->
+      <div class="profile-container" id="seller-container" style="display: none;">
+        <!-- KYC Moderation State Card (Visible when kycStatus is pending) -->
+        <div id="seller-kyc-pending-card" style="display: none; grid-column: 1/-1; background: rgba(11, 15, 25, 0.6); border: 1px solid var(--border-color); border-radius: 16px; padding: 40px 20px; text-align: center; margin-bottom: 24px;">
+          <div style="font-size: 3.5rem; margin-bottom: 16px;">⏳</div>
+          <h2 style="color: white; margin-bottom: 12px;">Sizning arizangiz hozirda ko'rib chiqilmoqda</h2>
+          <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto 20px auto; line-height: 1.6; font-size: 0.95rem;">
+            Pasport ma'lumotlaringiz va arizangiz administratorlarimiz tomonidan tekshirilmoqda. Tekshiruv odatda 24 soat ichida yakunlanadi. Arizangiz tasdiqlangandan so'ng mahsulotlar sotishni boshlashingiz mumkin.
+          </p>
+          <button class="logout-btn" id="seller-pending-logout-btn" style="padding: 12px 24px; font-weight: bold; border-radius: 8px;">Profildan chiqish</button>
+        </div>
+
+        <!-- KYC Rejection State Card (Visible when kycStatus is rejected) -->
+        <div id="seller-kyc-rejected-card" style="display: none; grid-column: 1/-1; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 16px; padding: 40px 20px; text-align: center; margin-bottom: 24px;">
+          <div style="font-size: 3.5rem; margin-bottom: 16px;">❌</div>
+          <h2 style="color: var(--danger); margin-bottom: 12px;">Arizangiz rad etildi</h2>
+          <p style="color: white; max-width: 500px; margin: 0 auto 12px auto; line-height: 1.6; font-size: 0.95rem;" id="seller-rejection-text">
+            Sabab: Pasport nusxasi noaniq yuborilgan.
+          </p>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">
+            Rad etishlar soni: <span id="seller-rejection-count">0</span> / 3
+          </p>
+          <div style="display: flex; justify-content: center; gap: 12px;">
+            <button id="seller-reapply-btn" style="padding: 12px 24px; background: var(--primary); border: none; color: white; font-weight: bold; border-radius: 8px; cursor: pointer;">Qayta ariza topshirish</button>
+            <button class="logout-btn" id="seller-rejected-logout-btn" style="padding: 12px 24px; font-weight: bold; border-radius: 8px;">Profildan chiqish</button>
+          </div>
+        </div>
+
+        <!-- Seller Profile Card Wrapper (For hiding normal content) -->
+        <div id="seller-normal-profile" style="display: contents;">
+          <!-- Left: Sotuvchi Ma'lumotlari -->
+          <section class="profile-card">
+            <div class="profile-avatar" style="background: linear-gradient(135deg, var(--primary) 0%, var(--success) 100%);">S</div>
+          <h3 id="seller-name">Sotuvchi</h3>
+          <p class="email" id="seller-email">seller@example.com</p>
+          <div style="margin-top: 10px; font-size: 0.85rem; color: var(--text-muted); text-align: center;">
+            Karta / Hisob: <strong id="seller-bank-display" style="color: white;">Kiritilmagan</strong>
+          </div>
+
+          <!-- Cashback Wallet Widget -->
+          <div style="margin-top: 20px; padding: 12px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; text-align: center;">
+            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Keshbek Hamyoni</div>
+            <div id="seller-wallet-balance" style="font-size: 1.3rem; font-weight: 800; color: var(--success); margin-top: 4px;">$0.00</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px;">Hisoblangan keshbek mablag'lari</div>
+          </div>
+
+          <button id="seller-edit-profile-btn" style="margin-top: 16px; width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--primary); background: transparent; color: var(--primary); cursor: pointer; font-weight: bold;">Profilni tahrirlash</button>
+          <button id="seller-logout-button" class="logout-btn" style="margin-top: 8px; width: 100%;">Chiqish</button>
+        </section>
+
+        <!-- Right: Seller Tabs & Seller Sections -->
+        <div class="dashboard-details">
+          <section class="orders-card" style="padding: 24px;">
+            <div class="auth-tabs" style="margin-bottom: 20px;">
+              <button type="button" id="tab-seller-stats" class="auth-tab active">Sotuvlar & Qoldiqlar</button>
+              <button type="button" id="tab-seller-add" class="auth-tab">Mahsulot qo'shish</button>
+            </div>
+
+            <!-- Seller Stats & Products List Section -->
+            <div id="seller-stats-section">
+              <h2>📈 Do'kon statistikasi</h2>
+              
+              <!-- Quick Stats widgets -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
+                <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 12px; padding: 16px; text-align: center;">
+                  <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Jami Daromad</div>
+                  <div id="seller-revenue" style="font-size: 1.5rem; font-weight: 800; color: var(--success); margin-top: 8px;">$0.00</div>
+                </div>
+                <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.15); border-radius: 12px; padding: 16px; text-align: center;">
+                  <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Mavjud Mahsulotlar</div>
+                  <div id="seller-products-count" style="font-size: 1.5rem; font-weight: 800; color: white; margin-top: 8px;">0 ta</div>
+                </div>
+              </div>
+
+              <!-- Inventory stock warning alerts -->
+              <div id="seller-stock-alerts" style="display: none; margin-bottom: 20px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 16px;">
+                <h4 style="color: var(--danger); font-size: 0.95rem; margin-bottom: 8px; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                  ⚠️ Qoldig'i kamaygan mahsulotlar (Stock Warning)
+                </h4>
+                <ul id="seller-alerts-list" style="list-style: none; font-size: 0.85rem; color: var(--text-main); display: flex; flex-direction: column; gap: 4px; padding-left: 0;">
+                  <!-- Dynamically populated warnings -->
+                </ul>
+              </div>
+
+              <!-- Seller Sales Chart -->
+              <div style="background: rgba(11, 15, 25, 0.4); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 24px;">
+                <h3 style="color: white; font-size: 1rem; margin-bottom: 16px; display:flex; align-items:center; gap:8px;">📊 Savdo statistikasi (oxirgi 7 buyurtma)</h3>
+                <canvas id="seller-sales-chart" height="120" style="max-width:100%;"></canvas>
+              </div>
+
+              <h3 style="margin-bottom: 12px; color: white; font-size: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 6px;">Mening mahsulotlarim</h3>
+              <div id="seller-products-list" style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- Dynamically populated products list with stock controls -->
+              </div>
+            </div>
+
+            <!-- Seller Add Product Section -->
+            <div id="seller-add-section" style="display: none;">
+              <h2>⚡ Yangi mahsulot sotuvga chiqarish</h2>
+              <form id="seller-product-form" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+                <div class="form-group">
+                  <label for="seller-product-name">Mahsulot nomi</label>
+                  <input id="seller-product-name" type="text" placeholder="Masalan: Geymer Klaviaturasi" required />
+                </div>
+                <div class="form-group">
+                  <label for="seller-product-price">Sotilish narxi ($)</label>
+                  <input id="seller-product-price" type="number" placeholder="Masalan: 89" required />
+                </div>
+                <div class="form-group">
+                  <label for="seller-product-cost">Tan narxi ($)</label>
+                  <input id="seller-product-cost" type="number" placeholder="Masalan: 50" required />
+                </div>
+                <div class="form-group">
+                  <label for="seller-product-original-price">Eski narx ($, ixtiyoriy)</label>
+                  <input id="seller-product-original-price" type="number" placeholder="Masalan: 89" />
+                </div>
+                <div class="form-group">
+                  <label for="seller-product-stock">Soni (Stock)</label>
+                  <input id="seller-product-stock" type="number" placeholder="Masalan: 12" value="10" required />
+                </div>
+                <div class="form-group">
+                  <label for="seller-product-category">Kategoriya</label>
+                  <select id="seller-product-category" class="filter-select" style="background: rgba(11, 15, 25, 0.6); padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-main); font-family: inherit;">
+                    <option value="Smartfonlar">Smartfonlar</option>
+                    <option value="Audio">Audio</option>
+                    <option value="Planshetlar">Planshetlar</option>
+                    <option value="Aksessuarlar">Aksessuarlar</option>
+                    <option value="Kiyimlar">Kiyimlar</option>
+                    <option value="Elektronika">Elektronika</option>
+                    <option value="Uy-joy">Uy-joy</option>
+                    <option value="Sport">Sport</option>
+                    <option value="Go'zallik">Go'zallik</option>
+                    <option value="Oziq-ovqat">Oziq-ovqat</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="seller-product-image">Rasm fayli nomi</label>
+                  <input id="seller-product-image" type="text" placeholder="Masalan: smartphone.png" value="smartphone.png" required />
+                </div>
+                <div class="form-group">
+                  <label for="seller-product-return-days">Qaytarish muddati (kun, 0 = yo'q)</label>
+                  <input id="seller-product-return-days" type="number" min="0" max="365" placeholder="Masalan: 14" value="0" />
+                </div>
+                <div class="form-group-full form-group" style="grid-column: span 2;">
+
+                  <label for="seller-product-description">Tavsif</label>
+                  <textarea id="seller-product-description" placeholder="Mahsulot haqida batafsil ma'lumot..." required></textarea>
+                </div>
+                <button type="submit" style="grid-column: span 2; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">Mahsulotni sotuvga joylash</button>
+              </form>
+              <p id="seller-product-message" class="message" style="margin-top: 12px;"></p>
+            </div>
+          </section>
+        </div>
+        </div> <!-- Closes seller-normal-profile wrapper -->
+      </div>
+
+      <!-- Admin Dashboard (Visible when logged in as admin) -->
+      <div class="profile-container" id="admin-container" style="display: none;">
+        <!-- Left: Shaxsiy Ma'lumotlar -->
+        <section class="profile-card">
+          <div class="profile-avatar" style="background: linear-gradient(135deg, var(--danger) 0%, var(--primary) 100%);">AD</div>
+          <h3>Admin Panel</h3>
+          <p class="email" id="admin-email">admin@smartshop.com</p>
+
+          <!-- Cashback Wallet Widget -->
+          <div style="margin-top: 20px; padding: 12px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; text-align: center;">
+            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Keshbek Hamyoni</div>
+            <div id="admin-wallet-balance" style="font-size: 1.3rem; font-weight: 800; color: var(--success); margin-top: 4px;">$0.00</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px;">Barcha keshbek fondlari nazorati</div>
+          </div>
+
+          <button id="admin-logout-button" class="logout-btn" style="margin-top: 16px; width: 100%;">Chiqish</button>
+        </section>
+
+        <!-- Right: Admin Tabs & Admin Sections -->
+        <div class="dashboard-details">
+          <section class="orders-card" style="padding: 24px;">
+            <div class="auth-tabs" style="margin-bottom: 20px;">
+              <button type="button" id="tab-admin-financials" class="auth-tab active">Moliya & Analitika</button>
+              <button type="button" id="tab-admin-orders" class="auth-tab">Buyurtmalar Nazorati</button>
+              <button type="button" id="tab-admin-products" class="auth-tab">Mahsulotlar Nazorati</button>
+              <button type="button" id="tab-admin-users" class="auth-tab">Mijozlar</button>
+              <button type="button" id="tab-director-audit" class="auth-tab" style="display: none;">Tizim Auditi</button>
+            </div>
+
+            <!-- Admin Financials Section -->
+            <div id="admin-financials-section">
+              <h2>📊 Moliyaviy tahlil va ko'rsatkichlar</h2>
+              
+              <!-- Financial Summary Widgets -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin: 20px 0;">
+                <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.15); border-radius: 12px; padding: 16px; text-align: center;">
+                  <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Umumiy Tushum</div>
+                  <div id="fin-revenue" style="font-size: 1.6rem; font-weight: 800; color: white; margin-top: 8px;">$0.00</div>
+                </div>
+                <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.15); border-radius: 12px; padding: 16px; text-align: center;">
+                  <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Umumiy Xarajat (Tan narx)</div>
+                  <div id="fin-expenses" style="font-size: 1.6rem; font-weight: 800; color: white; margin-top: 8px;">$0.00</div>
+                </div>
+                <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 12px; padding: 16px; text-align: center;">
+                  <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Sof Foyda</div>
+                  <div id="fin-profit" style="font-size: 1.6rem; font-weight: 800; color: var(--success); margin-top: 8px;">$0.00</div>
+                </div>
+                <div style="background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.15); border-radius: 12px; padding: 16px; text-align: center;">
+                  <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Rentabellik</div>
+                  <div id="fin-margin" style="font-size: 1.6rem; font-weight: 800; color: #fbbf24; margin-top: 8px;">0.0%</div>
+                </div>
+              </div>
+
+              <!-- Details Grid: Category Summary & Orders Log -->
+              <div style="display: flex; flex-direction: column; gap: 24px; margin-top: 24px;">
+                <!-- Category Summary Table -->
+                <div style="background: rgba(11, 15, 25, 0.4); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px;">
+                  <h3 style="color: white; margin-bottom: 16px; font-size: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">📈 Kategoriyalar bo'yicha tahlil</h3>
+                  <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left; color: var(--text-main);">
+                      <thead>
+                        <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-muted);">
+                          <th style="padding: 12px 10px;">Kategoriya</th>
+                          <th style="padding: 12px 10px; text-align: center;">Sotilgan Soni</th>
+                          <th style="padding: 12px 10px; text-align: right;">Tushum</th>
+                          <th style="padding: 12px 10px; text-align: right;">Xarajat</th>
+                          <th style="padding: 12px 10px; text-align: right;">Sof Foyda</th>
+                        </tr>
+                      </thead>
+                      <tbody id="fin-category-table">
+                        <!-- Dynamically filled -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Financial Orders Table -->
+                <div style="background: rgba(11, 15, 25, 0.4); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom: 1px solid var(--border-color); padding-bottom:8px;">
+                    <h3 style="color: white; margin:0; font-size: 1.1rem;">🧾 Buyurtmalar moliyaviy hisoboti</h3>
+                    <button onclick="exportFinancialsCSV()" style="padding:8px 16px; border-radius:10px; border:1px solid var(--success); background:transparent; color:var(--success); font-size:0.85rem; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px;">
+                      📥 CSV Yuklab olish
+                    </button>
+                  </div>
+                  <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left; color: var(--text-main);">
+                      <thead>
+                        <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-muted);">
+                          <th style="padding: 12px 10px;">Buyurtma ID</th>
+                          <th style="padding: 12px 10px;">Mijoz</th>
+                          <th style="padding: 12px 10px;">Sana</th>
+                          <th style="padding: 12px 10px; text-align: right;">Tushum</th>
+                          <th style="padding: 12px 10px; text-align: right;">Xarajat</th>
+                          <th style="padding: 12px 10px; text-align: right;">Foyda</th>
+                        </tr>
+                      </thead>
+                      <tbody id="fin-orders-table">
+                        <!-- Dynamically filled -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Admin Orders Section -->
+            <div id="admin-orders-section" style="display: none;">
+              <h2>📦 Barcha buyurtmalar</h2>
+              <div id="admin-orders-list" class="order-history-list" style="margin-top: 16px;">
+                <!-- Dynamically populated via JS -->
+                <p style="color: var(--text-muted);">Sizda hozircha buyurtmalar tarixi mavjud emas.</p>
+              </div>
+            </div>
+
+            <!-- Admin Products Section -->
+            <div id="admin-products-section" style="display: none;">
+              <h2>⚡ Mahsulotlarni boshqarish</h2>
+              
+              <!-- Seller Panel (Add Product) -->
+              <div class="seller-card" style="border: none; padding: 0; box-shadow: none; margin-bottom: 24px; background: transparent;">
+                <h3 style="margin-bottom: 12px; color: white;">Yangi mahsulot qo'shish</h3>
+                <form id="admin-product-form" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                  <div class="form-group">
+                    <label for="admin-product-name">Mahsulot nomi</label>
+                    <input id="admin-product-name" type="text" placeholder="Masalan: Telefon" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="admin-product-price">Narxi ($)</label>
+                    <input id="admin-product-price" type="number" placeholder="Masalan: 499" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="admin-product-cost">Tan narxi ($)</label>
+                    <input id="admin-product-cost" type="number" placeholder="Masalan: 299" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="admin-product-original-price">Eski narx ($, ixtiyoriy)</label>
+                    <input id="admin-product-original-price" type="number" placeholder="Masalan: 549" />
+                  </div>
+                  <div class="form-group">
+                    <label for="admin-product-stock">Soni (Stock)</label>
+                    <input id="admin-product-stock" type="number" placeholder="Masalan: 15" value="15" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="admin-product-category">Kategoriya</label>
+                    <select id="admin-product-category" class="filter-select" style="background: rgba(11, 15, 25, 0.6); padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-main); font-family: inherit;">
+                      <option value="Smartfonlar">Smartfonlar</option>
+                      <option value="Audio">Audio</option>
+                      <option value="Planshetlar">Planshetlar</option>
+                      <option value="Aksessuarlar">Aksessuarlar</option>
+                      <option value="Kiyimlar">Kiyimlar</option>
+                      <option value="Elektronika">Elektronika</option>
+                      <option value="Uy-joy">Uy-joy</option>
+                      <option value="Sport">Sport</option>
+                      <option value="Go'zallik">Go'zallik</option>
+                      <option value="Oziq-ovqat">Oziq-ovqat</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="admin-product-image">Rasm fayli nomi</label>
+                    <input id="admin-product-image" type="text" placeholder="Masalan: smartphone.png" value="smartphone.png" required />
+                  </div>
+                  <div class="form-group-full form-group" style="grid-column: span 2;">
+                    <label for="admin-product-description">Tavsif</label>
+                    <textarea id="admin-product-description" placeholder="Mahsulot haqida batafsil ma'lumot..." required></textarea>
+                  </div>
+                  <button type="submit" style="grid-column: span 2; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">Mahsulotni sotuvga chiqarish</button>
+                </form>
+                <p id="admin-product-message" class="message" style="margin-top: 12px;"></p>
+              </div>
+
+              <hr style="border-color: var(--border-color); margin: 24px 0;" />
+
+              <h3 style="margin-bottom: 12px; color: white;">Mavjud mahsulotlar</h3>
+              <div id="admin-products-list" style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- Dynamically populated via JS -->
+              </div>
+            </div>
+
+            <!-- Admin Users Section -->
+            <div id="admin-users-section" style="display: none;">
+              <h2>👥 Ro'yxatdan o'tgan mijozlar</h2>
+              <div id="admin-users-list" style="margin-top: 16px; display: flex; flex-direction: column; gap: 12px;">
+                <!-- Dynamically populated via JS -->
+              </div>
+            </div>
+
+            <!-- Director Audit Section -->
+            <div id="director-audit-section" style="display: none;">
+              <h2>🛡️ Tizimning moliyaviy auditi (Faqat Direktor uchun)</h2>
+              
+              <!-- Special Director Cards -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 20px 0;">
+                <div style="background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.15); border-radius: 12px; padding: 16px; text-align: center;">
+                  <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Mijozlar Jami Keshbeki</div>
+                  <div id="dir-total-cashback" style="font-size: 1.6rem; font-weight: 800; color: #a855f7; margin-top: 8px;">$0.00</div>
+                </div>
+                <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.15); border-radius: 12px; padding: 16px; text-align: center;">
+                  <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Ombordagi Mahsulotlar Qiymati</div>
+                  <div id="dir-stock-value" style="font-size: 1.6rem; font-weight: 800; color: #3b82f6; margin-top: 8px;">$0.00</div>
+                </div>
+                <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 12px; padding: 16px; text-align: center;">
+                  <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Jami Xaridlar Soni</div>
+                  <div id="dir-total-orders" style="font-size: 1.6rem; font-weight: 800; color: var(--success); margin-top: 8px;">0 ta</div>
+                </div>
+              </div>
+
+              <!-- Top Performing Sellers list -->
+              <div style="background: rgba(11, 15, 25, 0.4); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-top: 20px;">
+                <h3 style="color: white; margin-bottom: 16px; font-size: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">🏢 Do'kon sotuvchilar faoliyati nazorati</h3>
+                <div style="overflow-x: auto;">
+                  <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left; color: var(--text-main);">
+                    <thead>
+                      <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-muted);">
+                        <th style="padding: 12px 10px;">Sotuvchi</th>
+                        <th style="padding: 12px 10px;">Email</th>
+                        <th style="padding: 12px 10px; text-align: center;">Hamyon balansi</th>
+                        <th style="padding: 12px 10px; text-align: center;">Roli</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dir-sellers-table">
+                      <!-- Dynamically filled -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- System Actions Audit (Append-only logs table) -->
+              <div style="background: rgba(11, 15, 25, 0.4); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-top: 24px;">
+                <h3 style="color: white; margin-bottom: 16px; font-size: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">🛡️ Tizim harakatlari auditi (Audit Log)</h3>
+                <div style="overflow-x: auto;">
+                  <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left; color: var(--text-main);">
+                    <thead>
+                      <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-muted);">
+                        <th style="padding: 12px 10px;">Vaqt (Timestamp)</th>
+                        <th style="padding: 12px 10px;">Ijrochi (Actor)</th>
+                        <th style="padding: 12px 10px;">Harakat (Action)</th>
+                        <th style="padding: 12px 10px;">Tavsif (Details)</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dir-audit-logs-table">
+                      <tr><td colspan="4" style="padding: 20px; text-align: center; color: var(--text-muted);">Yuklanmoqda...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <!-- Toast Notifications container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <footer>
+      <p>&copy; 2026 SmartShop Savdo Platformasi. Barcha huquqlar himoyalangan.</p>
+    </footer>
+
+    <!-- Profile Edit Modal -->
+    <div id="profile-edit-modal" class="modal-overlay">
+      <div class="modal-container" style="max-width: 450px;">
+        <button class="modal-close" id="close-profile-modal">&times;</button>
+        <div style="padding: 30px;">
+          <h2 style="color: white; margin-bottom: 20px; font-size: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">Profilni tahrirlash</h2>
+          <form id="profile-edit-form">
+            <div class="form-group">
+              <label for="edit-profile-name" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">Ism</label>
+              <input type="text" id="edit-profile-name" placeholder="Ism" required />
+            </div>
+            <div class="form-group">
+              <label for="edit-profile-email" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">Email</label>
+              <input type="email" id="edit-profile-email" placeholder="Email" required />
+            </div>
+            <div class="form-group">
+              <label for="edit-profile-phone" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">Telefon raqami</label>
+              <input type="tel" id="edit-profile-phone" placeholder="Telefon raqami" />
+            </div>
+            <div class="form-group">
+              <label for="edit-profile-avatar" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">Rasm URL (ixtiyoriy)</label>
+              <input type="url" id="edit-profile-avatar" placeholder="Rasm URL (ixtiyoriy)" />
+            </div>
+            <div class="form-group">
+              <label for="edit-profile-bank" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">Karta yoki Bank hisob raqami</label>
+              <input type="text" id="edit-profile-bank" placeholder="8600 0000 0000 0000 yoki 2020..." />
+            </div>
+            <div class="form-group">
+              <label for="edit-profile-addresses" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">Manzillar (har birini yangi qatorda yozing)</label>
+              <textarea id="edit-profile-addresses" placeholder="Uy: Chilonzor 1-mavze&#10;Ish: Xadra maydoni" rows="3"></textarea>
+            </div>
+            
+            <button type="submit">Saqlash</button>
+          </form>
+          
+          <div style="margin-top: 24px; border-top: 1px solid var(--border-color); padding-top: 16px; text-align: center;">
+            <button id="delete-account-btn" class="logout-btn" style="width: 100%;">Akkauntni butunlay o'chirish</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SMS OTP Verification Modal -->
+    <div id="otp-verification-modal" class="modal-overlay">
+      <div class="modal-container" style="max-width: 400px; text-align: center;">
+        <button class="modal-close" id="close-otp-modal">&times;</button>
+        <div style="padding: 30px;">
+          <h2 style="color: white; margin-bottom: 12px; font-size: 1.5rem;">SMS Tasdiqlash</h2>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5;" id="otp-phone-text">
+            Biz sizning telefon raqamingizga tasdiqlash kodini yubordik.
+          </p>
+          
+          <div style="font-size: 0.85rem; color: var(--warning); background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 8px; padding: 10px; margin-bottom: 20px; display: none;" id="otp-dev-code-box">
+            DEV ONLY: Tasdiqlash kodi -> <strong id="otp-dev-code" style="font-size: 1rem; color: white;">------</strong>
+          </div>
+
+          <form id="otp-verification-form">
+            <div class="form-group" style="margin-bottom: 20px;">
+              <input type="text" id="otp-input-code" placeholder="6-xonali kod" required maxLength="6" style="text-align: center; font-size: 1.4rem; letter-spacing: 4px; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(11, 15, 25, 0.6); color: white;" />
+            </div>
+            
+            <button type="submit" style="width: 100%; padding: 12px; font-weight: bold; border-radius: 8px;">Kodni tasdiqlash</button>
+          </form>
+
+          <p id="otp-message" class="message" style="margin-top: 12px; font-size: 0.85rem;"></p>
+
+          <div style="margin-top: 20px; font-size: 0.9rem;">
+            <span id="otp-timer-label" style="color: var(--text-muted);">Kodni qayta yuborish: <strong id="otp-timer-count" style="color: var(--primary);">60</strong> soniya</span>
+            <button id="btn-otp-resend" style="display: none; background: transparent; border: none; color: var(--primary); font-weight: 700; cursor: pointer; text-decoration: underline;" type="button">Kodni qayta yuborish</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Telegram Bot Simulator Modal -->
+    <div id="telegram-sim-modal" class="modal-overlay">
+      <div class="modal-container" style="max-width: 480px; padding: 0; display: flex; flex-direction: column; height: 500px; background: #0e1621; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+        <!-- Header -->
+        <div style="background: #17212b; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #0e1621; flex-shrink: 0;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #0088cc 0%, #00a8ff 100%); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: white;">⚡</div>
+            <div style="text-align: left;">
+              <h4 style="margin: 0; color: white; font-size: 0.95rem; font-weight: 700;">SmartShop Bot</h4>
+              <p style="margin: 0; color: #40c4ff; font-size: 0.75rem;">bot</p>
+            </div>
+          </div>
+          <button class="modal-close" id="close-tg-sim-modal" style="position: static; font-size: 1.6rem; color: var(--text-muted); cursor: pointer; background: transparent; border: none; padding: 4px;">&times;</button>
+        </div>
+
+        <!-- Chat Area -->
+        <div id="tg-sim-chat-area" style="flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; background: #0e1621; border-bottom: 1px solid rgba(255,255,255,0.03);">
+          <!-- Welcome message -->
+          <div style="align-self: center; background: rgba(23, 33, 43, 0.85); color: #7f91a4; font-size: 0.8rem; padding: 6px 14px; border-radius: 12px; max-width: 80%; text-align: center;">
+            Bugun. Tizim Simulyatori
+          </div>
+          <div style="align-self: flex-start; background: #182533; color: #f5f5f5; font-size: 0.88rem; padding: 10px 14px; border-radius: 12px 12px 12px 0px; max-width: 80%; line-height: 1.4; border: 1px solid rgba(255,255,255,0.03);">
+            Salom! SmartShop xavfsiz tizimiga xush kelibsiz. Kirish uchun saytdagi Telegram tugmalarini bosing.
+          </div>
+        </div>
+
+        <!-- Input Bar -->
+        <div style="background: #17212b; padding: 12px; display: flex; gap: 10px; border-top: 1px solid #0e1621; flex-shrink: 0;">
+          <input type="text" id="tg-sim-input" placeholder="Xabar yozing..." style="flex: 1; padding: 12px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); background: #0e1621; color: white; font-family: inherit; font-size: 0.9rem;" />
+          <button id="tg-sim-send-btn" style="background: #2b5278; color: white; border: none; border-radius: 50%; width: 44px; height: 44px; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s;">✈️</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js?v=4"></script>
+  </body>
+</html>

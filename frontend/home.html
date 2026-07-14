@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartShop — O'zbekistonning Eng Yaxshi Online Do'koni</title>
+  <meta name="description" content="SmartShop — premium elektronika, kiyim va boshqa minglab mahsulotlarni eng yaxshi narxlarda xarid qiling. Tezkor yetkazib berish." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ============================================
+       SMARTSHOP — PREMIUM HOME PAGE
+       Inspired by: Apple, Shopify, Zara, Stripe
+    ============================================ */
+
+    :root {
+      --accent: #6366f1;
+      --accent2: #8b5cf6;
+      --accent3: #06b6d4;
+      --green: #10b981;
+      --gold: #f59e0b;
+    }
+
+    /* ---------- GLOBAL RESET ---------- */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    /* Custom cursor */
+    body { cursor: none; }
+    .cursor-dot {
+      position: fixed;
+      width: 8px; height: 8px;
+      background: #6366f1;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transition: transform 0.1s;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 36px; height: 36px;
+      border: 1.5px solid rgba(99,102,241,0.5);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99998;
+      transition: transform 0.12s ease, width 0.2s, height 0.2s, opacity 0.2s;
+    }
+
+    /* ---------- MARQUEE STRIP ---------- */
+    .marquee-strip {
+      background: linear-gradient(90deg, #6366f1, #8b5cf6, #06b6d4, #10b981, #6366f1);
+      background-size: 300% auto;
+      animation: gradShift 6s linear infinite;
+      padding: 10px 0;
+      overflow: hidden;
+      position: relative;
+    }
+    @keyframes gradShift {
+      0% { background-position: 0% center; }
+      100% { background-position: 300% center; }
+    }
+    .marquee-inner {
+      display: flex;
+      white-space: nowrap;
+      animation: marquee 22s linear infinite;
+    }
+    .marquee-inner span {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: white;
+      padding: 0 32px;
+      opacity: 0.9;
+    }
+    .marquee-inner span::before {
+      content: '⚡ ';
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* ---------- HERO SECTION ---------- */
+    .hero-premium {
+      min-height: 92vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 0;
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+      background: var(--bg-main);
+      margin-bottom: 0;
+    }
+
+    /* Noise texture overlay */
+    .hero-premium::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .hero-left {
+      padding: 80px 5% 80px 7%;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(99,102,241,0.1);
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 99px;
+      padding: 7px 18px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #a5b4fc;
+      margin-bottom: 28px;
+      animation: fadeInUp 0.6s ease both;
+    }
+    .hero-pill .live-dot {
+      width: 7px; height: 7px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 0 3px rgba(16,185,129,0.25);
+      animation: livePulse 2s ease infinite;
+    }
+    @keyframes livePulse {
+      0%,100% { box-shadow: 0 0 0 3px rgba(16,185,129,0.25); }
+      50% { box-shadow: 0 0 0 8px rgba(16,185,129,0.05); }
+    }
+
+    .hero-h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.8rem, 5.5vw, 5rem);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      color: #fff;
+      margin-bottom: 24px;
+      animation: fadeInUp 0.6s ease 0.1s both;
+    }
+    .hero-h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, #818cf8, #34d399, #818cf8);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmerText 4s linear infinite;
+    }
+    @keyframes shimmerText {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    .hero-sub {
+      font-size: 1.15rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.7;
+      max-width: 460px;
+      margin-bottom: 40px;
+      animation: fadeInUp 0.6s ease 0.2s both;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 48px;
+      animation: fadeInUp 0.6s ease 0.3s both;
+    }
+
+    .btn-glow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 36px;
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 16px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 0 0 rgba(99,102,241,0.4), 0 4px 20px rgba(99,102,241,0.3);
+    }
+    .btn-glow::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -60%;
+      width: 40%; height: 200%;
+      background: rgba(255,255,255,0.12);
+      transform: skewX(-20deg);
+      transition: left 0.4s ease;
+    }
+    .btn-glow:hover::before { left: 130%; }
+    .btn-glow:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 0 6px rgba(99,102,241,0.15), 0 8px 32px rgba(99,102,241,0.45);
+    }
+
+    .btn-ghost-white {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 32px;
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.8);
+      font-weight: 600;
+      font-size: 1rem;
+      border-radius: 16px;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.1);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s, color 0.2s;
+      backdrop-filter: blur(8px);
+    }
+    .btn-ghost-white:hover {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 32px;
+      animation: fadeInUp 0.6s ease 0.4s both;
+    }
+    .hero-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .hero-stat strong {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: white;
+      letter-spacing: -1px;
+    }
+    .hero-stat small {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.4);
+      font-weight: 500;
+    }
+    .hero-sep {
+      width: 1px;
+      background: rgba(255,255,255,0.1);
+      height: 44px;
+      align-self: center;
+    }
+
+    /* Right side — 3D product showcase */
+    .hero-right {
+      position: relative;
+      height: 100%;
+      min-height: 92vh;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(16,185,129,0.04) 100%);
+      border-left: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .hero-glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(80px);
+    }
+    .orb1 {
+      width: 400px; height: 400px;
+      background: rgba(99,102,241,0.3);
+      top: 10%; right: -100px;
+      animation: orbFloat1 10s ease-in-out infinite;
+    }
+    .orb2 {
+      width: 300px; height: 300px;
+      background: rgba(16,185,129,0.2);
+      bottom: 10%; left: -50px;
+      animation: orbFloat2 13s ease-in-out infinite;
+    }
+    .orb3 {
+      width: 200px; height: 200px;
+      background: rgba(139,92,246,0.25);
+      top: 50%; right: 30%;
+      animation: orbFloat1 8s ease-in-out infinite reverse;
+    }
+    @keyframes orbFloat1 {
+      0%,100% { transform: translate(0,0) scale(1); }
+      50% { transform: translate(-30px, 40px) scale(1.1); }
+    }
+    @keyframes orbFloat2 {
+      0%,100% { transform: translate(0,0) scale(1); }
+      50% { transform: translate(40px, -30px) scale(1.08); }
+    }
+
+    /* Floating cards in hero right */
+    .hero-card-grid {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    .hero-float-card {
+      position: absolute;
+      background: rgba(21,28,44,0.88);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 16px 20px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+      animation: floatUpDown linear infinite;
+    }
+    @keyframes floatUpDown {
+      0%,100% { transform: translateY(0px) rotate(0deg); }
+      33% { transform: translateY(-18px) rotate(1deg); }
+      66% { transform: translateY(8px) rotate(-0.5deg); }
+    }
+
+    .hfc-1 { top: 12%; right: 8%; animation-duration: 7s; animation-delay: 0s; }
+    .hfc-2 { top: 35%; left: 5%; animation-duration: 9s; animation-delay: -3s; }
+    .hfc-3 { bottom: 20%; right: 12%; animation-duration: 6s; animation-delay: -1.5s; }
+    .hfc-4 { bottom: 38%; left: 8%; animation-duration: 11s; animation-delay: -5s; }
+
+    .hfc-title { font-size: 0.7rem; color: rgba(255,255,255,0.45); font-weight: 600; margin-bottom: 4px; }
+    .hfc-val { font-size: 1rem; font-weight: 800; color: white; font-family: 'Space Grotesk', sans-serif; }
+    .hfc-val.green { color: #34d399; }
+    .hfc-val.gold { color: #fbbf24; }
+    .hfc-row { display: flex; align-items: center; gap: 10px; }
+    .hfc-icon { font-size: 1.4rem; }
+    .hfc-badge {
+      display: inline-block;
+      background: rgba(16,185,129,0.15);
+      border: 1px solid rgba(16,185,129,0.3);
+      color: #34d399;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 99px;
+      margin-top: 4px;
+    }
+    .hfc-badge.red {
+      background: rgba(239,68,68,0.12);
+      border-color: rgba(239,68,68,0.25);
+      color: #f87171;
+    }
+
+    /* Center blob in hero */
+    .hero-blob-center {
+      width: 280px; height: 280px;
+      background: linear-gradient(135deg, #6366f1 0%, #818cf8 40%, #34d399 100%);
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+      animation: morphBlob 9s ease-in-out infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      box-shadow: 0 0 80px rgba(99,102,241,0.4), 0 0 160px rgba(99,102,241,0.1);
+      position: relative;
+      z-index: 3;
+    }
+    @keyframes morphBlob {
+      0%   { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+      25%  { border-radius: 40% 60% 60% 40% / 50% 40% 60% 50%; }
+      50%  { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+      75%  { border-radius: 50% 40% 50% 60% / 60% 50% 40% 50%; }
+      100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---------- SECTION WRAPPER ---------- */
+    .page-section {
+      padding: 80px 7%;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ---------- SECTION HEADING ---------- */
+    .sec-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+      display: block;
+    }
+    .sec-h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.9rem, 3.5vw, 2.8rem);
+      font-weight: 700;
+      letter-spacing: -1px;
+      color: white;
+      margin-bottom: 12px;
+    }
+    .sec-sub {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.45);
+      max-width: 480px;
+    }
+    .sec-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+    .link-arrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-decoration: none;
+      border: 1px solid rgba(99,102,241,0.3);
+      padding: 8px 20px;
+      border-radius: 99px;
+      transition: background 0.2s, transform 0.2s;
+      white-space: nowrap;
+      background: rgba(99,102,241,0.06);
+    }
+    .link-arrow:hover {
+      background: rgba(99,102,241,0.15);
+      transform: translateX(4px);
+    }
+
+    /* ---------- CATEGORIES SECTION ---------- */
+    .cats-scroll {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+    }
+
+    .cat-tile {
+      position: relative;
+      border-radius: 22px;
+      overflow: hidden;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      aspect-ratio: 1;
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
+    }
+    .cat-tile:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(99,102,241,0.2);
+    }
+
+    .cat-tile-bg {
+      position: absolute;
+      inset: 0;
+      transition: transform 0.5s ease;
+    }
+    .cat-tile:hover .cat-tile-bg { transform: scale(1.08); }
+
+    .cat-tile-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.85) 100%);
+    }
+    .cat-tile-content {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px 18px;
+    }
+    .cat-tile-icon {
+      font-size: 2.2rem;
+      display: block;
+      margin-bottom: 8px;
+      transform: scale(1);
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .cat-tile:hover .cat-tile-icon { transform: scale(1.2) rotate(-5deg); }
+    .cat-tile-name {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: white;
+    }
+    .cat-tile-count {
+      font-size: 0.73rem;
+      color: rgba(255,255,255,0.5);
+      margin-top: 2px;
+    }
+
+    /* Gradient backgrounds for each category */
+    .cat-bg-1 { background: linear-gradient(135deg, #1a1040 0%, #312e81 100%); }
+    .cat-bg-2 { background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); }
+    .cat-bg-3 { background: linear-gradient(135deg, #1a0533 0%, #6b21a8 100%); }
+    .cat-bg-4 { background: linear-gradient(135deg, #052e16 0%, #14532d 100%); }
+    .cat-bg-5 { background: linear-gradient(135deg, #1c1917 0%, #44403c 100%); }
+    .cat-bg-6 { background: linear-gradient(135deg, #0c0a09 0%, #1c1917 50%, #292524 100%); }
+    .cat-bg-7 { background: linear-gradient(135deg, #0d1b2a 0%, #1b4332 100%); }
+    .cat-bg-8 { background: linear-gradient(135deg, #2d1b69 0%, #11998e 100%); }
+    .cat-bg-9 { background: linear-gradient(135deg, #4a0e8f 0%, #c2185b 100%); }
+    .cat-bg-10 { background: linear-gradient(135deg, #134e5e 0%, #71b280 100%); }
+
+    /* ---------- FLASH SALE SECTION ---------- */
+    .flash-sale-wrap {
+      padding: 60px 7%;
+      background: var(--bg-main);
+    }
+
+    .flash-banner {
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      border-radius: 28px;
+      padding: 50px 60px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 40px;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+
+    .flash-banner::before {
+      content: '';
+      position: absolute;
+      top: -60%; right: -5%;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .flash-banner::after {
+      content: '';
+      position: absolute;
+      bottom: -40%; left: -5%;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .flash-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(239,68,68,0.15);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #fca5a5;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 99px;
+      margin-bottom: 16px;
+    }
+    .flash-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #f87171;
+      animation: livePulse 1.5s ease infinite;
+    }
+
+    .flash-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.8rem, 3.5vw, 3rem);
+      font-weight: 700;
+      letter-spacing: -1.5px;
+      color: white;
+      margin-bottom: 12px;
+    }
+    .flash-title span {
+      color: #fbbf24;
+    }
+
+    .flash-sub {
+      color: rgba(255,255,255,0.5);
+      font-size: 1rem;
+    }
+
+    .flash-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 32px;
+      background: white;
+      color: #1e1b4b;
+      font-weight: 800;
+      font-size: 1rem;
+      border-radius: 14px;
+      text-decoration: none;
+      margin-top: 28px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+    .flash-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+
+    .flash-right { position: relative; z-index: 1; }
+    .countdown-flex {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .cd-unit {
+      text-align: center;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 18px;
+      padding: 20px 22px;
+      min-width: 82px;
+    }
+    .cd-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: white;
+      line-height: 1;
+      margin-bottom: 6px;
+      letter-spacing: -1px;
+    }
+    .cd-lbl {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.4);
+      font-weight: 600;
+    }
+    .cd-sep {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2rem;
+      color: rgba(255,255,255,0.25);
+      animation: blink 1s ease infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+
+    /* ---------- HOT DEALS ---------- */
+    .deals-section {
+      padding: 60px 7%;
+      background: linear-gradient(180deg, var(--bg-main) 0%, rgba(15,15,25,1) 100%);
+    }
+
+    /* ---------- FEATURES STRIP ---------- */
+    .features-strip {
+      padding: 0 7% 60px;
+    }
+
+    .features-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .feat-item {
+      background: var(--bg-card);
+      padding: 36px 28px;
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      transition: background 0.3s;
+    }
+    .feat-item:hover { background: var(--bg-card-hover); }
+
+    .feat-icon-box {
+      width: 52px; height: 52px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .fi-indigo { background: rgba(99,102,241,0.12); }
+    .fi-green  { background: rgba(16,185,129,0.12); }
+    .fi-amber  { background: rgba(245,158,11,0.12); }
+    .fi-rose   { background: rgba(239,68,68,0.1); }
+
+    .feat-text h4 { font-size: 1rem; font-weight: 700; color: white; margin-bottom: 6px; }
+    .feat-text p  { font-size: 0.85rem; color: rgba(255,255,255,0.4); line-height: 1.6; }
+
+    /* ---------- TRUST SECTION ---------- */
+    .trust-wrap {
+      padding: 0 7% 60px;
+    }
+    .trust-inner {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 24px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      overflow: hidden;
+    }
+    .trust-item {
+      padding: 32px 36px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: transparent;
+      transition: background 0.3s;
+    }
+    .trust-item:hover { background: rgba(255,255,255,0.03); }
+    .trust-icon-big {
+      font-size: 2.2rem;
+      width: 60px; height: 60px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(99,102,241,0.1);
+      border: 1px solid rgba(99,102,241,0.15);
+      flex-shrink: 0;
+    }
+    .trust-text h4 { font-size: 1.05rem; font-weight: 700; color: white; margin-bottom: 5px; }
+    .trust-text p  { font-size: 0.85rem; color: rgba(255,255,255,0.4); line-height: 1.5; }
+
+    /* ---------- PREMIUM FOOTER ---------- */
+    .footer-premium {
+      background: #06070d;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 70px 7% 30px;
+    }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 2.2fr 1fr 1fr 1.3fr;
+      gap: 48px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    .footer-brand-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, white 30%, #818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 14px;
+      display: block;
+    }
+    .footer-brand-desc {
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.35);
+      line-height: 1.7;
+      margin-bottom: 24px;
+      max-width: 290px;
+    }
+    .social-row { display: flex; gap: 10px; }
+    .soc-btn {
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s, border-color 0.2s;
+      color: white;
+    }
+    .soc-btn:hover {
+      background: rgba(99,102,241,0.2);
+      border-color: rgba(99,102,241,0.4);
+      transform: translateY(-2px);
+    }
+
+    .footer-col-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 20px;
+    }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .footer-links a {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      transition: color 0.2s, padding-left 0.2s;
+      display: block;
+    }
+    .footer-links a:hover { color: white; padding-left: 5px; }
+
+    .newsletter-box {}
+    .newsletter-input-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .newsletter-input {
+      flex: 1;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      color: white;
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .newsletter-input::placeholder { color: rgba(255,255,255,0.3); }
+    .newsletter-input:focus { border-color: rgba(99,102,241,0.5); }
+    .newsletter-btn {
+      padding: 12px 18px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .newsletter-btn:hover { background: #4f46e5; transform: translateY(-1px); }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 28px;
+      max-width: 1440px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-bottom p { font-size: 0.82rem; color: rgba(255,255,255,0.25); }
+    .payment-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pay-chip {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px;
+      padding: 5px 14px;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.35);
+      font-weight: 600;
+    }
+
+    /* ---------- SCROLL REVEAL ---------- */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1), transform 0.7s cubic-bezier(0.4,0,0.2,1);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width: 1100px) {
+      .hero-premium { grid-template-columns: 1fr; min-height: auto; }
+      .hero-right { display: none; }
+      .hero-left { padding: 80px 6%; }
+      .cats-scroll { grid-template-columns: repeat(5, 1fr); }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .features-grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .trust-inner { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      .cats-scroll { grid-template-columns: repeat(3, 1fr); }
+      .flash-banner { grid-template-columns: 1fr; padding: 36px 28px; text-align: center; }
+      .countdown-flex { justify-content: center; }
+      .footer-top { grid-template-columns: 1fr; gap: 32px; }
+      .features-grid-4 { grid-template-columns: 1fr; }
+      .hero-meta { gap: 16px; flex-wrap: wrap; }
+      .page-section { padding: 60px 5%; }
+      .deals-section { padding: 40px 5%; }
+      .flash-sale-wrap { padding: 40px 5%; }
+    }
+    @media (max-width: 480px) {
+      .cats-scroll { grid-template-columns: repeat(2, 1fr); }
+      .hero-h1 { letter-spacing: -1px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom cursor -->
+  <div class="cursor-dot" id="cursor-dot"></div>
+  <div class="cursor-ring" id="cursor-ring"></div>
+
+  <!-- ===== HEADER ===== -->
+  <header class="header">
+    <a href="home.html" class="logo">SmartShop</a>
+    <nav class="nav">
+      <a href="home.html" class="active">Bosh sahifa</a>
+      <a href="products.html">Mahsulotlar</a>
+      <a href="delivery.html">Yetkazib berish</a>
+      <a href="cart.html">Savat</a>
+      <a class="user-link" id="user-link" href="account.html">Akaunt</a>
+    </nav>
+    <div class="header-actions">
+      <div class="user-info" id="user-info">Yuklanmoqda...</div>
+      <a class="cart-button" href="cart.html" id="cart-nav-btn">
+        <span>&#128722;</span> Savat (<span id="cart-count">0</span>)
+      </a>
+    </div>
+  </header>
+
+  <!-- ===== MARQUEE STRIP ===== -->
+  <div class="marquee-strip" aria-hidden="true">
+    <div class="marquee-inner">
+      <span>Tezkor yetkazib berish</span>
+      <span>50,000+ mijozlar</span>
+      <span>Flash Sale faol</span>
+      <span>100% original</span>
+      <span>Xavfsiz to'lov</span>
+      <span>Premium sifat</span>
+      <span>Tezkor yetkazib berish</span>
+      <span>50,000+ mijozlar</span>
+      <span>Flash Sale faol</span>
+      <span>100% original</span>
+      <span>Xavfsiz to'lov</span>
+      <span>Premium sifat</span>
+    </div>
+  </div>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero-premium">
+    <div class="hero-left">
+      <div class="hero-pill">
+        <span class="live-dot"></span>
+        O'zbekiston #1 Online Do'koni
+      </div>
+
+      <h1 class="hero-h1">
+        Eng Yaxshi<br/>
+        <em>Premium</em><br/>
+        Narxlarda
+      </h1>
+
+      <p class="hero-sub">
+        Smartfonlar, audio, elektronika va minglab boshqa mahsulotlarni
+        katta chegirmalar bilan xarid qiling.
+        Buyurtmangiz eshigingizgacha yetkaziladi.
+      </p>
+
+      <div class="hero-actions">
+        <a href="products.html" class="btn-glow" id="hero-shop-btn">
+          &#128717; Xaridlarni boshlash
+        </a>
+        <a href="delivery.html" class="btn-ghost-white" id="hero-delivery-btn">
+          &#128666; Yetkazish haqida
+        </a>
+        <button class="btn-ghost-white" id="hero-telegram-btn">
+          &#128172; Telegram orqali ro'yxatdan o'tish
+        </button>
+      </div>
+
+      <div class="hero-meta">
+        <div class="hero-stat">
+          <strong>50K+</strong>
+          <small>Faol mijozlar</small>
+        </div>
+        <div class="hero-sep"></div>
+        <div class="hero-stat">
+          <strong>120K+</strong>
+          <small>Buyurtmalar</small>
+        </div>
+        <div class="hero-sep"></div>
+        <div class="hero-stat">
+          <strong>4.9&#9733;</strong>
+          <small>Mijozlar bahosi</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <!-- Glowing orbs -->
+      <div class="hero-glow-orb orb1"></div>
+      <div class="hero-glow-orb orb2"></div>
+      <div class="hero-glow-orb orb3"></div>
+
+      <!-- Floating info cards -->
+      <div class="hero-float-card hfc-1">
+        <div class="hfc-row">
+          <span class="hfc-icon">&#128230;</span>
+          <div>
+            <div class="hfc-title">Yangi buyurtma</div>
+            <div class="hfc-val">iPhone 15 Pro</div>
+            <div class="hfc-badge">&#10003; Yetkazildi</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-float-card hfc-2">
+        <div class="hfc-title">Bugungi chegirma</div>
+        <div class="hfc-val gold">&#128293; &#8722;40%</div>
+        <div class="hfc-badge red">Cheklangan vaqt</div>
+      </div>
+
+      <div class="hero-float-card hfc-3">
+        <div class="hfc-title">Faol foydalanuvchilar</div>
+        <div class="hfc-val green">12,834</div>
+        <div class="hfc-badge">&#8593; 18% oshdi</div>
+      </div>
+
+      <div class="hero-float-card hfc-4">
+        <div class="hfc-title">Keshbek</div>
+        <div class="hfc-val">+$12.40</div>
+        <div class="hfc-badge">5% keshbek</div>
+      </div>
+
+      <!-- Center piece -->
+      <div class="hero-card-grid">
+        <div class="hero-blob-center">&#128722;</div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    async function registerViaTelegram() {
+      try {
+        const name = prompt('Ismingizni kiriting:');
+        if (!name) return alert('Ism kiritilishi kerak');
+        const email = prompt('Email manzilingiz:');
+        if (!email) return alert('Email kiritilishi kerak');
+        const phone = prompt('Telefon raqamingiz (+998...):');
+        if (!phone) return alert('Telefon kiritilishi kerak');
+
+        const res = await fetch('/api/register/telegram', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, phone })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.message || 'Xatolik yuz berdi');
+          return;
+        }
+        // Open Telegram deep-link returned by server
+        if (data.link) {
+          window.open(data.link, '_blank');
+        } else {
+          alert('Telegram havolasi olinmadi');
+        }
+      } catch (e) {
+        alert('Xatolik: ' + (e.message || e));
+      }
+    }
+
+    document.getElementById('hero-telegram-btn').addEventListener('click', registerViaTelegram);
+  </script>
+
+  <!-- ===== CATEGORIES ===== -->
+  <section class="page-section reveal" id="categories-section">
+    <div class="sec-header">
+      <div>
+        <span class="sec-label">Kategoriyalar</span>
+        <h2 class="sec-h2">Nimani izlayapsiz?</h2>
+      </div>
+      <a href="products.html" class="link-arrow">Barchasi &#8594;</a>
+    </div>
+
+    <div class="cats-scroll">
+      <a href="products.html?category=Smartfonlar" class="cat-tile" id="cat-smartfonlar">
+        <div class="cat-tile-bg cat-bg-1"></div>
+        <div class="cat-tile-overlay"></div>
+        <div class="cat-tile-content">
+          <span class="cat-tile-icon">&#128241;</span>
+          <div class="cat-tile-name">Smartfonlar</div>
+          <div class="cat-tile-count">200+ mahsulot</div>
+        </div>
+      </a>
+      <a href="products.html?category=Audio" class="cat-tile" id="cat-audio">
+        <div class="cat-tile-bg cat-bg-2"></div>
+        <div class="cat-tile-overlay"></div>
+        <div class="cat-tile-content">
+          <span class="cat-tile-icon">&#127911;</span>
+          <div class="cat-tile-name">Audio</div>
+          <div class="cat-tile-count">150+ mahsulot</div>
+        </div>
+      </a>
+      <a href="products.html?category=Planshetlar" class="cat-tile" id="cat-planshetlar">
+        <div class="cat-tile-bg cat-bg-3"></div>
+        <div class="cat-tile-overlay"></div>
+        <div class="cat-tile-content">
+          <span class="cat-tile-icon">&#128187;</span>
+          <div class="cat-tile-name">Planshetlar</div>
+          <div class="cat-tile-count">80+ mahsulot</div>
+        </div>
+      </a>
+      <a href="products.html?category=Aksessuarlar" class="cat-tile" id="cat-akses">
+        <div class="cat-tile-bg cat-bg-4"></div>
+        <div class="cat-tile-overlay"></div>
+        <div class="cat-tile-content">
+          <span class="cat-tile-icon">&#128433;&#65039;</span>
+          <div class="cat-tile-name">Aksessuarlar</div>
+          <div class="cat-tile-count">500+ mahsulot</div>
+        </div>
+      </a>
+      <a href="products.html?category=Kiyimlar" class="cat-tile" id="cat-kiyim">
+        <div class="cat-tile-bg cat-bg-5"></div>
+        <div class="cat-tile-overlay"></div>
+        <div class="cat-tile-content">
+          <span class="cat-tile-icon">&#128085;</span>
+          <div class="cat-tile-name">Kiyimlar</div>
+          <div class="cat-tile-count">300+ mahsulot</div>
+        </div>
+      </a>
+      <a href="products.html?category=Elektronika" class="cat-tile" id="cat-elektr">
+        <div class="cat-tile-bg cat-bg-6"></div>
+        <div class="cat-tile-overlay"></div>
+        <div class="cat-tile-content">
+          <span class="cat-tile-icon">&#128161;</span>
+          <div class="cat-tile-name">Elektronika</div>
+          <div class="cat-tile-count">400+ mahsulot</div>
+        </div>
+      </a>
+      <a href="products.html?category=Uy-joy" class="cat-tile" id="cat-uy">
+        <div class="cat-tile-bg cat-bg-7"></div>
+        <div class="cat-tile-overlay"></div>
+        <div class="cat-tile-content">
+          <span class="cat-tile-icon">&#127968;</span>
+          <div class="cat-tile-name">Uy-joy</div>
+          <div class="cat-tile-count">250+ mahsulot</div>
+        </div>
+      </a>
+      <a href="products.html?category=Sport" class="cat-tile" id="cat-sport">
+        <div class="cat-tile-bg cat-bg-8"></div>
+        <div class="cat-tile-overlay"></div>
+        <div class="cat-tile-content">
+          <span class="cat-tile-icon">&#127947;&#65039;</span>
+          <div class="cat-tile-name">Sport</div>
+          <div class="cat-tile-count">180+ mahsulot</div>
+        </div>
+      </a>
+      <a href="products.html?category=Go'zallik" class="cat-tile" id="cat-goz">
+        <div class="cat-tile-bg cat-bg-9"></div>
+        <div class="cat-tile-overlay"></div>
+        <div class="cat-tile-content">
+          <span class="cat-tile-icon">&#128132;</span>
+          <div class="cat-tile-name">Go'zallik</div>
+          <div class="cat-tile-count">120+ mahsulot</div>
+        </div>
+      </a>
+      <a href="products.html?category=Oziq-ovqat" class="cat-tile" id="cat-oziq">
+        <div class="cat-tile-bg cat-bg-10"></div>
+        <div class="cat-tile-overlay"></div>
+        <div class="cat-tile-content">
+          <span class="cat-tile-icon">&#129361;</span>
+          <div class="cat-tile-name">Oziq-ovqat</div>
+          <div class="cat-tile-count">90+ mahsulot</div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===== FLASH SALE ===== -->
+  <div class="flash-sale-wrap reveal reveal-delay-1">
+    <div class="flash-banner">
+      <div>
+        <div class="flash-tag">
+          <span class="flash-dot"></span> Flash Sale
+        </div>
+        <h2 class="flash-title">Yozgi Mega Sale —<br/><span>40% gacha chegirma!</span></h2>
+        <p class="flash-sub">Vaqt tugashidan oldin xarid qiling</p>
+        <a href="products.html" class="flash-btn" id="flash-shop-btn">
+          &#9889; Hozir xarid qilish
+        </a>
+      </div>
+      <div class="flash-right">
+        <div style="text-align:center;margin-bottom:14px;font-size:0.75rem;letter-spacing:2px;color:rgba(255,255,255,0.35);font-weight:600;text-transform:uppercase;">Qolgan vaqt</div>
+        <div class="countdown-flex">
+          <div class="cd-unit">
+            <div class="cd-num" id="cd-h">08</div>
+            <div class="cd-lbl">Soat</div>
+          </div>
+          <div class="cd-sep">:</div>
+          <div class="cd-unit">
+            <div class="cd-num" id="cd-m">24</div>
+            <div class="cd-lbl">Daqiqa</div>
+          </div>
+          <div class="cd-sep">:</div>
+          <div class="cd-unit">
+            <div class="cd-num" id="cd-s">00</div>
+            <div class="cd-lbl">Soniya</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== HOT DEALS ===== -->
+  <div class="deals-section reveal reveal-delay-2">
+    <div style="max-width:1440px;margin:0 auto;">
+      <div class="sec-header" style="margin-bottom:36px;">
+        <div>
+          <span class="sec-label">&#128293; Maxsus Takliflar</span>
+          <h2 class="sec-h2">Katta Chegirmalar</h2>
+        </div>
+        <a href="products.html" class="link-arrow">Hammasini ko'rish &#8594;</a>
+      </div>
+      <div id="hot-products-list" class="product-grid">
+        <p style="color:rgba(255,255,255,0.3);text-align:center;grid-column:1/-1;padding:48px 0;">
+          &#8987; Chegirmalar yuklanmoqda...
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FEATURES ===== -->
+  <div class="features-strip reveal">
+    <div style="max-width:1440px;margin:0 auto;">
+      <div style="margin-bottom:32px;">
+        <span class="sec-label">Nima uchun biz?</span>
+        <h2 class="sec-h2">SmartShop Afzalliklari</h2>
+      </div>
+      <div class="features-grid-4">
+        <div class="feat-item">
+          <div class="feat-icon-box fi-indigo">&#128640;</div>
+          <div class="feat-text">
+            <h4>Tezkor yetkazib berish</h4>
+            <p>24&#8211;48 soat ichida butun O'zbekiston bo'ylab</p>
+          </div>
+        </div>
+        <div class="feat-item">
+          <div class="feat-icon-box fi-green">&#128737;&#65039;</div>
+          <div class="feat-text">
+            <h4>100% Kafolat</h4>
+            <p>Har bir mahsulot sifat nazoratidan o'tadi</p>
+          </div>
+        </div>
+        <div class="feat-item">
+          <div class="feat-icon-box fi-amber">&#128176;</div>
+          <div class="feat-text">
+            <h4>Eng Past Narxlar</h4>
+            <p>Bozordagi eng raqobatbardosh narxlar</p>
+          </div>
+        </div>
+        <div class="feat-item">
+          <div class="feat-icon-box fi-rose">&#128172;</div>
+          <div class="feat-text">
+            <h4>24/7 Qo'llab-quvvatlash</h4>
+            <p>Istalgan vaqtda jamoamizga murojaat qiling</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TRUST BADGES ===== -->
+  <div class="trust-wrap reveal reveal-delay-1">
+    <div style="max-width:1440px;margin:0 auto;">
+      <div class="trust-inner">
+        <div class="trust-item">
+          <div class="trust-icon-big">&#128274;</div>
+          <div class="trust-text">
+            <h4>Xavfsiz To'lov</h4>
+            <p>SSL shifrlash va xavfsiz to'lov tizimlari orqali to'liq himoyalangan</p>
+          </div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon-big">&#127942;</div>
+          <div class="trust-text">
+            <h4>Original Mahsulotlar</h4>
+            <p>Faqat rasmiy distribyutorlardan 100% original va sifatli mahsulotlar</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL ===== -->
+  <div class="modal-overlay" id="product-modal">
+    <div class="modal-container">
+      <button class="modal-close" id="modal-close-btn">&times;</button>
+      <div class="modal-body" id="modal-body-content"></div>
+    </div>
+  </div>
+
+  <!-- ===== TOAST ===== -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer-premium">
+    <div class="footer-top">
+      <div>
+        <span class="footer-brand-name">&#9889; SmartShop</span>
+        <p class="footer-brand-desc">O'zbekistonning eng ishonchli premium online savdo platformasi. Minglab mahsulotlar, tezkor yetkazib berish, kafolatlangan sifat.</p>
+        <div class="social-row">
+          <a href="#" class="soc-btn" title="Telegram">&#128241;</a>
+          <a href="#" class="soc-btn" title="Instagram">&#128247;</a>
+          <a href="#" class="soc-btn" title="Facebook">&#128100;</a>
+          <a href="#" class="soc-btn" title="YouTube">&#9654;&#65039;</a>
+          <a href="#" class="soc-btn" title="TikTok">&#127926;</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="footer-col-title">Havolalar</div>
+        <ul class="footer-links">
+          <li><a href="home.html">Bosh sahifa</a></li>
+          <li><a href="products.html">Mahsulotlar</a></li>
+          <li><a href="cart.html">Savat</a></li>
+          <li><a href="account.html">Akaunt</a></li>
+          <li><a href="delivery.html">Yetkazib berish</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="footer-col-title">Kategoriyalar</div>
+        <ul class="footer-links">
+          <li><a href="products.html?category=Smartfonlar">Smartfonlar</a></li>
+          <li><a href="products.html?category=Audio">Audio</a></li>
+          <li><a href="products.html?category=Planshetlar">Planshetlar</a></li>
+          <li><a href="products.html?category=Elektronika">Elektronika</a></li>
+          <li><a href="products.html?category=Kiyimlar">Kiyimlar</a></li>
+          <li><a href="products.html?category=Sport">Sport</a></li>
+        </ul>
+      </div>
+
+      <div class="newsletter-box">
+        <div class="footer-col-title">Yangiliklar</div>
+        <p style="font-size:0.85rem;color:rgba(255,255,255,0.4);line-height:1.6;margin-bottom:4px;">Maxsus takliflar va chegirmalardan xabardor bo'ling</p>
+        <div class="newsletter-input-row">
+          <input type="email" class="newsletter-input" placeholder="Email manzilingiz" id="newsletter-email" />
+          <button class="newsletter-btn" id="newsletter-btn">&#8594;</button>
+        </div>
+        <div style="margin-top:20px;">
+          <div class="footer-col-title" style="margin-bottom:14px;">Yordam</div>
+          <ul class="footer-links">
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Maxfiylik siyosati</a></li>
+            <li><a href="#">Biz haqimizda</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&#169; 2026 SmartShop. Barcha huquqlar himoyalangan.</p>
+      <div class="payment-chips">
+        <span class="pay-chip">&#128179; Visa</span>
+        <span class="pay-chip">&#128179; Mastercard</span>
+        <span class="pay-chip">&#128241; Payme</span>
+        <span class="pay-chip">&#128241; Click</span>
+        <span class="pay-chip">&#128178; Uzcard</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+
+  <script>
+    /* ================================================
+       HOME PAGE INTERACTIVE SCRIPTS
+    ================================================ */
+
+    // 1. Custom Cursor
+    (function () {
+      var dot  = document.getElementById('cursor-dot');
+      var ring = document.getElementById('cursor-ring');
+      var mx = 0, my = 0, rx = 0, ry = 0;
+
+      document.addEventListener('mousemove', function(e) {
+        mx = e.clientX; my = e.clientY;
+        dot.style.left  = mx - 4  + 'px';
+        dot.style.top   = my - 4  + 'px';
+      });
+
+      function animRing() {
+        rx += (mx - rx) * 0.12;
+        ry += (my - ry) * 0.12;
+        ring.style.left = rx - 18 + 'px';
+        ring.style.top  = ry - 18 + 'px';
+        requestAnimationFrame(animRing);
+      }
+      animRing();
+
+      document.querySelectorAll('a, button, .cat-tile').forEach(function(el) {
+        el.addEventListener('mouseenter', function() {
+          dot.style.transform  = 'scale(2)';
+          ring.style.width     = '56px';
+          ring.style.height    = '56px';
+          ring.style.opacity   = '0.6';
+        });
+        el.addEventListener('mouseleave', function() {
+          dot.style.transform  = 'scale(1)';
+          ring.style.width     = '36px';
+          ring.style.height    = '36px';
+          ring.style.opacity   = '1';
+        });
+      });
+
+      // Hide cursor when leaving window
+      document.addEventListener('mouseleave', function() {
+        dot.style.opacity = '0'; ring.style.opacity = '0';
+      });
+      document.addEventListener('mouseenter', function() {
+        dot.style.opacity = '1'; ring.style.opacity = '1';
+      });
+    })();
+
+    // 2. Countdown Timer
+    (function () {
+      var end = Date.now() + (8 * 3600 + 24 * 60) * 1000;
+      function pad(n) { return String(n).padStart(2, '0'); }
+      function tick() {
+        var diff = Math.max(0, end - Date.now());
+        var h = Math.floor(diff / 3600000);
+        var m = Math.floor((diff % 3600000) / 60000);
+        var s = Math.floor((diff % 60000) / 1000);
+        var eh = document.getElementById('cd-h');
+        var em = document.getElementById('cd-m');
+        var es = document.getElementById('cd-s');
+        if (eh) eh.textContent = pad(h);
+        if (em) em.textContent = pad(m);
+        if (es) es.textContent = pad(s);
+      }
+      tick();
+      setInterval(tick, 1000);
+    })();
+
+    // 3. Scroll Reveal (IntersectionObserver)
+    (function () {
+      var els = document.querySelectorAll('.reveal');
+      if (!('IntersectionObserver' in window)) {
+        els.forEach(function(el) { el.classList.add('visible'); });
+        return;
+      }
+      var io = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            e.target.classList.add('visible');
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.08 });
+      els.forEach(function(el) { io.observe(el); });
+    })();
+
+    // 4. Newsletter
+    (function () {
+      var btn = document.getElementById('newsletter-btn');
+      var inp = document.getElementById('newsletter-email');
+      if (!btn || !inp) return;
+      btn.addEventListener('click', function() {
+        var v = (inp.value || '').trim();
+        if (!v || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+          inp.style.borderColor = 'rgba(239,68,68,0.5)';
+          setTimeout(function() { inp.style.borderColor = ''; }, 1500);
+          return;
+        }
+        btn.textContent = '\u2713';
+        btn.style.background = '#10b981';
+        inp.value = '';
+        setTimeout(function() {
+          btn.textContent = '\u2192';
+          btn.style.background = '';
+        }, 3000);
+        if (typeof showToast === 'function') showToast("Muvaffaqiyatli obuna bo'ldingiz!");
+      });
+    })();
+  </script>
+</body>
+</html>

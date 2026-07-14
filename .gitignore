@@ -1,0 +1,39 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env.local
+.env.*.local
+
+# SQLite database files
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Uploads (user generated content)
+backend/uploads/
+
+# JSON data files (generated)
+backend/audit.json
+backend/users.json
+backend/orders.json
+backend/products.json
+backend/tmp_post.js
+backend/post_test.js

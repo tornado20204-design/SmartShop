@@ -1,0 +1,22 @@
+{
+  "name": "shop-backend",
+  "version": "1.0.0",
+  "description": "SmartShop Backend — SQLite bilan xavfsiz versiya",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "migrate": "node migrate-sqlite.js",
+    "setup": "node -e \"require('dotenv').config(); require('./db').getDb(); console.log('DB tayyor!'); process.exit();\""
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.11.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^6.9.4",
+    "winston": "^3.19.0"
+  }
+}

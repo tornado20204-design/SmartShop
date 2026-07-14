@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartShop | Mahsulotlar</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="header">
+      <a href="home.html" class="logo">SmartShop</a>
+      <nav class="nav">
+        <a href="home.html">Bosh sahifa</a>
+        <a href="products.html" class="active">Mahsulotlar</a>
+        <a href="cart.html">Savat</a>
+        <a class="user-link" id="user-link" href="account.html">Akaunt</a>
+      </nav>
+      <div class="header-actions">
+        <div class="user-info" id="user-info">Yuklanmoqda...</div>
+        <a class="cart-button" href="cart.html" id="cart-nav-btn">
+          <span>🛒</span> Savat (0)
+        </a>
+      </div>
+    </header>
+
+    <main class="products">
+      <div class="section-header">
+        <h2>Barcha mahsulotlar</h2>
+      </div>
+
+      <!-- Search and Filters Section -->
+      <section class="filters-container">
+        <div class="search-wrapper">
+          <input type="text" id="search-input" placeholder="Mahsulotlarni qidirish..." />
+        </div>
+        <div class="filter-group">
+          <!-- Expanded Categories -->
+          <select id="category-filter" class="filter-select">
+            <option value="all">Barcha toifalar</option>
+            <option value="Smartfonlar">Smartfonlar</option>
+            <option value="Audio">Audio</option>
+            <option value="Planshetlar">Planshetlar</option>
+            <option value="Aksessuarlar">Aksessuarlar</option>
+            <option value="Kiyimlar">Kiyimlar</option>
+            <option value="Elektronika">Elektronika</option>
+            <option value="Uy-joy">Uy-joy</option>
+            <option value="Sport">Sport</option>
+            <option value="Go'zallik">Go'zallik</option>
+            <option value="Oziq-ovqat">Oziq-ovqat</option>
+          </select>
+
+          <!-- Sorting Selector -->
+          <select id="sort-select" class="filter-select">
+            <option value="popular">Ommabopligi bo'yicha</option>
+            <option value="price-asc">Narx: Arzonroqdan boshlab</option>
+            <option value="price-desc">Narx: Qimmatroqdan boshlab</option>
+            <option value="rating-desc">Reyting: Yuqoriroqdan boshlab</option>
+          </select>
+
+          <!-- Discount only checkbox -->
+          <label style="font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none;">
+            <input type="checkbox" id="discount-only-checkbox" style="width: 16px; height: 16px; accent-color: var(--primary);" /> 
+            chegirmalilar %
+          </label>
+
+          <div class="price-slider-container">
+            <label for="price-filter">Maksimal narx: $<span id="price-val">1000</span></label>
+            <input type="range" id="price-filter" min="0" max="1000" value="1000" step="50" />
+          </div>
+        </div>
+      </section>
+
+      <!-- Products Grid -->
+      <div id="products-list" class="product-grid">
+        <p style="text-align: center; color: var(--text-muted); grid-column: 1/-1;">Yuklanmoqda...</p>
+      </div>
+    </main>
+
+    <!-- Product Detail Modal -->
+    <div class="modal-overlay" id="product-modal">
+      <div class="modal-container">
+        <button class="modal-close" id="modal-close-btn">&times;</button>
+        <div class="modal-body" id="modal-body-content">
+          <!-- Dynamically populated via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notifications container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <footer>
+      <p>&copy; 2026 SmartShop Savdo Platformasi. Barcha huquqlar himoyalangan.</p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
