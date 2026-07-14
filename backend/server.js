@@ -15,8 +15,7 @@ const smsService = require('./smsService');
 const paymentService = require('./paymentService');
 const { sendOrderEmail, sendPasswordResetEmail } = require('./emailService');
 
-const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(48).toString('hex');
-const frontendDir = path.join(__dirname, '..', 'frontend');
+const BASE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
 const uploadsDir = path.join(__dirname, 'uploads');
 
 const fs = require('fs');
@@ -249,7 +248,11 @@ setInterval(() => {
 }, 5 * 60 * 1000);
 
 // ===== SERVER =====
-const server = http.createServer(async (req, res) => {
+function isRateLimited(req) {
+  // Rate limiting logic — allow all requests if not implemented
+  return false;
+}
+
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -1170,9 +1173,9 @@ const server = http.createServer(async (req, res) => {
             if (user) {
               const tgToken = crypto.randomBytes(24).toString('hex');
               db.prepare('UPDATE users SET telegramToken = ? WHERE id = ?').run(tgToken, user.id);
-              responseText = `Assalomu alaykum, ${user.name}! 👋\n\nTelegram orqali tizimga kirish uchun quyidagi havolaga bosing:\nhttp://localhost:3000/account.html?tgToken=${tgToken}`;
+              responseText = `Assalomu alaykum, ${user.name}! 👋\nTelegram orqali tizimga kirish uchun quyidagi havolaga bosing:\n${BASE_URL}/account.html?tgToken=${tgToken}`;
             } else {
-              responseText = `Kechirasiz, "${identifier}" ma'lumotiga ega foydalanuvchi topilmadi.\n\nIltimos, avval ro'yxatdan o'ting: http://localhost:3000/account.html`;
+              responseText = `Kechirasiz, "${identifier}" ma'lumotiga ega foydalanuvchi topilmadi.\n\nIltimos, avval ro'yxatdan o'ting: ${BASE_URL}/account.html`;
             }
           } else if (payload.startsWith('register_')) {
             const phone = decodeURIComponent(payload.substring(9)).trim();
@@ -1180,15 +1183,15 @@ const server = http.createServer(async (req, res) => {
             if (user) {
               const tgToken = crypto.randomBytes(24).toString('hex');
               db.prepare('UPDATE users SET telegramToken = ? WHERE id = ?').run(tgToken, user.id);
-              responseText = `Siz allaqachon ro'yxatdan o'tgansiz, ${user.name}! 👋\n\nTizimga kirish uchun havolani bosing:\nhttp://localhost:3000/account.html?tgToken=${tgToken}`;
+              responseText = `Siz allaqachon ro'yxatdan o'tgansiz, ${user.name}! 👋\n\nTizimga kirish uchun havolani bosing:\n${BASE_URL}/account.html?tgToken=${tgToken}`;
             } else {
-              responseText = `Kechirasiz, ushbu telefon raqami (+${phone}) bilan foydalanuvchi topilmadi. Avval saytda ro'yxatdan o'ting: http://localhost:3000/account.html`;
+              responseText = `Kechirasiz, ushbu telefon raqami (+${phone}) bilan foydalanuvchi topilmadi. Avval saytda ro'yxatdan o'ting: ${BASE_URL}/account.html`;
             }
           } else {
             const token = payload.trim();
             const user = db.prepare('SELECT * FROM users WHERE telegramToken = ?').get(token);
             if (user) {
-              responseText = `Assalomu alaykum, ${user.name}! 👋\n\nSmartShop-da Telegram orqali ro'yxatdan o'tganingiz uchun rahmat. Tizimga kirish uchun quyidagi havolaga bosing:\nhttp://localhost:3000/account.html?tgToken=${token}`;
+              responseText = `Assalomu alaykum, ${user.name}! 👋\nSmartShop-da Telegram orqali ro'yxatdan o'tganingiz uchun rahmat. Tizimga kirish uchun quyidagi havolaga bosing:\n${BASE_URL}/account.html?tgToken=${token}`;
             } else {
               responseText = `Noto'g'ri yoki muddati o'tgan faollashtirish tokeni: "${token}".\n\nYordam uchun /help buyrug'ini yuboring.`;
             }
@@ -1197,11 +1200,11 @@ const server = http.createServer(async (req, res) => {
           responseText = `Assalomu alaykum, ${data.username || 'foydalanuvchi'}! 👋\nSmartShop botiga xush kelibsiz!\n\n/start - Botni ishga tushirish\n/login - Tizimga kirish\n/register - Ro'yxatdan o'tish\n/products - Mahsulotlar\n/help - Yordam`;
         }
       } else if (text.includes('/login') || text.includes('kirish')) {
-        responseText = `Tizimga kirish uchun saytga o'ting:\nhttp://localhost:3000/account.html`;
+        responseText = `Tizimga kirish uchun saytga o'ting:\n${BASE_URL}/account.html`;
       } else if (text.includes('/register') || text.includes('ro\'yxat')) {
-        responseText = `Ro'yxatdan o'tish uchun saytga o'ting:\nhttp://localhost:3000/account.html`;
+        responseText = `Ro'yxatdan o'tish uchun saytga o'ting:\n${BASE_URL}/account.html`;
       } else if (text.includes('/products') || text.includes('mahsulot')) {
-        responseText = `Mahsulotlarni ko'rish uchun:\nhttp://localhost:3000/products.html`;
+        responseText = `Mahsulotlarni ko'rish uchun:\n${BASE_URL}/products.html`;
       } else if (text.includes('yordam') || text.includes('/help')) {
         responseText = `Yordam bo'limi:\n\n/start - Botni ishga tushirish\n/login - Tizimga kirish\n/register - Ro'yxatdan o'tish\n/products - Mahsulotlar\n/help - Yordam\n\n📞 Qo'llab-quvvatlash: support@smartshop.uz`;
       } else {

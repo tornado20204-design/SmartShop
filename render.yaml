@@ -11,19 +11,5 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: "3000"
       - key: JWT_SECRET
         generateValue: true
-      - key: DB_PATH
-        value: ./database.sqlite
-      - key: DEBUG_OTP
-        value: "false"
-      - key: SHOW_OTP_IN_RESPONSE
-        value: "false"
-      - key: SMTP_HOST
-        value: smtp.gmail.com
-      - key: SMTP_PORT
-        value: "587"
-      - key: SMTP_SECURE
-        value: "false"
