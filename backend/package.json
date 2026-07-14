@@ -6,7 +6,11 @@
   "scripts": {
     "start": "node server.js",
     "migrate": "node migrate-sqlite.js",
-    "setup": "node -e \"require('dotenv').config(); require('./db').getDb(); console.log('DB tayyor!'); process.exit();\""
+    "setup": "node -e \"require('dotenv').config(); require('./db').getDb(); console.log('DB tayyor!'); process.exit();\"",
+    "postinstall": "node -e \"try { require('better-sqlite3'); } catch(e) { process.exit(1); }\""
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
