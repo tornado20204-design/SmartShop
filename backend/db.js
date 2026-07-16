@@ -6,7 +6,10 @@ let db;
 function getDb() {
   if (db) return db;
 
-  const dbPath = process.env.DB_PATH || path.join(__dirname, 'database.sqlite');
+  let dbPath = process.env.DB_PATH || 'database.sqlite';
+  if (!path.isAbsolute(dbPath)) {
+    dbPath = path.join(__dirname, dbPath);
+  }
   db = new Database(dbPath);
 
   // Enable WAL mode for better concurrent performance
