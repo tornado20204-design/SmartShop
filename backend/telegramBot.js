@@ -238,7 +238,7 @@ function showProducts(botToken, chatId) {
 
 function showOrders(botToken, chatId, user) {
   const db = getDb();
-  const orders = db.prepare('SELECT * FROM orders WHERE userId = ? ORDER BY id DESC LIMIT 5').all();
+  const orders = db.prepare('SELECT * FROM orders WHERE userId = ? ORDER BY id DESC LIMIT 5').all(user.id);
   
   if (orders.length === 0) {
     sendTelegramMessage(botToken, chatId, "Sizda hali buyurtmalar mavjud emas. 📦", makeMainMenuKeyboard());
