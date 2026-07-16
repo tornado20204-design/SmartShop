@@ -1,5 +1,6 @@
 const https = require('https');
 const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 const { getDb } = require('./db');
 
 let pollingActive = false;
@@ -51,74 +52,163 @@ function pollUpdates(botToken, baseUrl) {
   });
 }
 
+function makeMainMenuKeyboard() {
+  return JSON.stringify({
+    keyboard: [
+      [{ text: '🛍️ Mahsulotlar' }, { text: '📦 Buyurtmalarim' }],
+      [{ text: '💰 Hamyon (Keshbek)' }, { text: '👤 Profil' }],
+      [{ text: '❓ Yordam' }]
+    ],
+    resize_keyboard: true,
+    one_time_keyboard: false
+  });
+}
+
+function makeShareContactKeyboard() {
+  return JSON.stringify({
+    keyboard: [
+      [{ text: '📞 Telefon raqamni yuborish (Tasdiqlash)', request_contact: true }]
+    ],
+    resize_keyboard: true,
+    one_time_keyboard: true
+  });
+}
+
 function handleUpdate(botToken, update, baseUrl) {
   if (!update.message) return;
   const msg = update.message;
   const chatId = msg.chat.id;
+  const db = getDb();
+  
+  // 1. Handle contact sharing (Account verification / register)
+  if (msg.contact) {
+    let phone = msg.contact.phone_number;
+    const normalizedPhone = String(phone).replace(/\D/g, '');
+    let user = db.prepare('SELECT * FROM users WHERE phone = ? OR email = ?').get(normalizedPhone, normalizedPhone);
+    
+    if (user) {
+      db.prepare('UPDATE users SET token = ? WHERE id = ?').run(String(chatId), user.id);
+      const text = `Muvaffaqiyatli bog'landi! ✅\n\nSalom, *${user.name}*! Endi siz do'konimiz xizmatlaridan bevosita Telegram orqali ham foydalana olasiz.`;
+      sendTelegramMessage(botToken, chatId, text, makeMainMenuKeyboard());
+    } else {
+      // Register a new user
+      const dummyPassword = bcrypt.hashSync(crypto.randomBytes(16).toString('hex'), 10);
+      const name = msg.contact.first_name || `Telegram User (${normalizedPhone.slice(-4)})`;
+      const email = `tg_${normalizedPhone}@smartshop.com`;
+      
+      const stmt = db.prepare('INSERT INTO users (name, email, phone, password, role, token, walletBalance, kycStatus) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+      stmt.run(name, email, normalizedPhone, dummyPassword, 'user', String(chatId), 0, 'none');
+      
+      const text = `Tabriklaymiz! Siz ro'yxatdan o'tdingiz! 🎉\n\nSalom, *${name}*! SmartShop do'koniga xush kelibsiz. Quyidagi menyu orqali mahsulotlarni ko'rishingiz mumkin:`;
+      sendTelegramMessage(botToken, chatId, text, makeMainMenuKeyboard());
+    }
+    return;
+  }
+
   const rawText = (msg.text || '').trim();
   const text = rawText.toLowerCase();
-  const username = msg.from.username || msg.from.first_name || 'Foydalanuvchi';
+  
+  // Look up user by Telegram Chat ID
+  let user = db.prepare('SELECT * FROM users WHERE token = ?').get(String(chatId));
 
-  let responseText = '';
-
-  const db = getDb();
+  // If user is not verified/logged in yet, require contact sharing
+  if (!user && !text.startsWith('/start') && !text.startsWith('start')) {
+    const responseText = `Kechirasiz, profilingiz SmartShop tizimi bilan bog'lanmagan 🔒\n\nIltimos, quyidagi tugma orqali telefon raqamingizni yuborib profilingizni tasdiqlang yoki ro'yxatdan o'ting:`;
+    sendTelegramMessage(botToken, chatId, responseText, makeShareContactKeyboard());
+    return;
+  }
 
   if (text.startsWith('/start') || text.startsWith('start')) {
     const parts = rawText.split(/\s+/);
     const payload = parts[1];
 
     if (payload) {
-      if (payload.startsWith('login_')) {
-        const identifier = decodeURIComponent(payload.substring(6)).trim();
-        const user = db.prepare('SELECT * FROM users WHERE email = ? OR phone = ?').get(identifier, identifier);
-        if (user) {
-          const tgToken = crypto.randomBytes(24).toString('hex');
-          db.prepare('UPDATE users SET telegramToken = ? WHERE id = ?').run(tgToken, user.id);
-          responseText = `Assalomu alaykum, ${user.name}! 👋\nTelegram orqali tizimga kirish uchun quyidagi havolaga bosing:\n${baseUrl}/account.html?tgToken=${tgToken}`;
-        } else {
-          responseText = `Kechirasiz, "${identifier}" ma'lumotiga ega foydalanuvchi topilmadi.\n\nIltimos, avval ro'yxatdan o'ting: ${baseUrl}/account.html`;
-        }
-      } else if (payload.startsWith('register_')) {
-        const phone = decodeURIComponent(payload.substring(9)).trim();
-        const user = db.prepare('SELECT * FROM users WHERE phone = ?').get(phone);
-        if (user) {
-          const tgToken = crypto.randomBytes(24).toString('hex');
-          db.prepare('UPDATE users SET telegramToken = ? WHERE id = ?').run(tgToken, user.id);
-          responseText = `Siz allaqachon ro'yxatdan o'tgansiz, ${user.name}! 👋\n\nTizimga kirish uchun havolani bosing:\n${baseUrl}/account.html?tgToken=${tgToken}`;
-        } else {
-          responseText = `Kechirasiz, ushbu telefon raqami (+${phone}) bilan foydalanuvchi topilmadi. Avval saytda ro'yxatdan o'tish bo'limida telefon orqali kirishni tanlang.`;
-        }
+      // Start with token from web redirect
+      const token = payload.trim();
+      const userByToken = db.prepare('SELECT * FROM users WHERE telegramToken = ?').get(token);
+      if (userByToken) {
+        db.prepare('UPDATE users SET token = ? WHERE id = ?').run(String(chatId), userByToken.id);
+        const responseText = `Assalomu alaykum, *${userByToken.name}*! 👋\n\nSmartShop profilingiz Telegram bilan muvaffaqiyatli bog'landi! Saytga qaytib kirishingiz yoki ushbu bot orqali ham xarid qilishingiz mumkin.`;
+        sendTelegramMessage(botToken, chatId, responseText, makeMainMenuKeyboard());
       } else {
-        const token = payload.trim();
-        const user = db.prepare('SELECT * FROM users WHERE telegramToken = ?').get(token);
-        if (user) {
-          // Save the user's real Telegram chat ID to token column
-          db.prepare('UPDATE users SET token = ? WHERE id = ?').run(String(chatId), user.id);
-          responseText = `Assalomu alaykum, ${user.name}! 👋\nSmartShop-da Telegram orqali ro'yxatdan o'tganingiz uchun rahmat. Tizimga kirish uchun quyidagi havolaga bosing:\n${baseUrl}/account.html?tgToken=${token}`;
-        } else {
-          responseText = `Noto'g'ri yoki muddati o'tgan faollashtirish tokeni: "${token}".\n\nYordam uchun /help buyrug'ini yuboring.`;
-        }
+        const responseText = `Xato: noto'g'ri yoki muddati o'tgan faollashtirish tokeni.`;
+        sendTelegramMessage(botToken, chatId, responseText, makeShareContactKeyboard());
       }
     } else {
-      responseText = `Assalomu alaykum, ${username}! 👋\nSmartShop botiga xush kelibsiz!\n\n/start - Botni ishga tushirish\n/login - Tizimga kirish\n/register - Ro'yxatdan o'tish\n/products - Mahsulotlar\n/help - Yordam`;
+      // Normal start
+      if (user) {
+        const responseText = `Salom, *${user.name}*! 👋\nSmartShop do'koniga qaytganingizdan xursandmiz. Quyidagi menyu orqali amallarni bajarishingiz mumkin:`;
+        sendTelegramMessage(botToken, chatId, responseText, makeMainMenuKeyboard());
+      } else {
+        const responseText = `Assalomu alaykum! 👋\nSmartShop savdo platformasi rasmiy botiga xush kelibsiz!\n\nTizimdan foydalanish uchun telefon raqamingizni ulash orqali kirishingiz yoki ro'yxatdan o'tishingiz shart:`;
+        sendTelegramMessage(botToken, chatId, responseText, makeShareContactKeyboard());
+      }
     }
-  } else if (text.includes('/login') || text.includes('kirish')) {
-    responseText = `Tizimga kirish uchun saytga o'ting:\n${baseUrl}/account.html`;
-  } else if (text.includes('/register') || text.includes('ro\'yxat')) {
-    responseText = `Ro'yxatdan o'tish uchun saytga o'ting:\n${baseUrl}/account.html`;
-  } else if (text.includes('/products') || text.includes('mahsulot')) {
-    responseText = `Mahsulotlarni ko'rish uchun:\n${baseUrl}/products.html`;
-  } else if (text.includes('yordam') || text.includes('/help')) {
-    responseText = `Yordam bo'limi:\n\n/start - Botni ishga tushirish\n/login - Tizimga kirish\n/register - Ro'yxatdan o'tish\n/products - Mahsulotlar\n/help - Yordam\n\n📞 Qo'llab-quvvatlash: support@smartshop.uz`;
+  } else if (text === '🛍️ mahsulotlar' || text === '/products') {
+    showProducts(botToken, chatId);
+  } else if (text === '📦 buyurtmalarim' || text === '/orders') {
+    showOrders(botToken, chatId, user);
+  } else if (text === '💰 hamyon (keshbek)' || text === '💰 hamyon' || text === '/wallet') {
+    const text = `💰 *Sizning Hamyoningiz:*\n\nBalans: *100% kafolatlangan keshbek* va naqd pullaringiz:\n💵 Jami: *${(user.walletBalance || 0).toFixed(2)} UZS* (yoki USD ekv.)`;
+    sendTelegramMessage(botToken, chatId, text, makeMainMenuKeyboard());
+  } else if (text === '👤 profil' || text === '/profile') {
+    const profileText = `👤 *SmartShop Profili:*\n\nIsm: *${user.name}*\nEmail: *${user.email || '—'}*\nTelefon: *+${user.phone || '—'}*\nRol: *${user.role.toUpperCase()}*\nID: *${user.id}*`;
+    sendTelegramMessage(botToken, chatId, profileText, makeMainMenuKeyboard());
+  } else if (text === '❓ yordam' || text === '/help') {
+    const helpText = `❓ *Yordam bo'limi*\n\nUshbu bot yordamida siz do'konimizdagi mahsulotlarni ko'rishingiz, buyurtmalaringiz holatini tekshirishingiz va hamyon balansingizni nazorat qilishingiz mumkin.\n\n📞 Qo'llab-quvvatlash: @SmartShopSupport\n🌐 Saytimiz: ${baseUrl}`;
+    sendTelegramMessage(botToken, chatId, helpText, makeMainMenuKeyboard());
   } else {
-    responseText = `Kechirasiz, "${msg.text}" buyrug'ini tushunmadim.\n\nYordam uchun /help buyrug'ini yuboring.`;
+    const responseText = `Kechirasiz, "${msg.text}" buyrug'ini tushunmadim.\n\nYordam uchun quyidagi menyudan foydalaning:`;
+    sendTelegramMessage(botToken, chatId, responseText, makeMainMenuKeyboard());
   }
-
-  sendTelegramMessage(botToken, chatId, responseText);
 }
 
-function sendTelegramMessage(botToken, chatId, text) {
-  const body = JSON.stringify({ chat_id: chatId, text });
+function showProducts(botToken, chatId) {
+  const db = getDb();
+  const products = db.prepare('SELECT * FROM products ORDER BY id DESC LIMIT 5').all();
+  
+  if (products.length === 0) {
+    sendTelegramMessage(botToken, chatId, "Hozirda do'konda mahsulotlar mavjud emas. 🛍️", makeMainMenuKeyboard());
+    return;
+  }
+
+  const listText = products.map((p, idx) => {
+    return `${idx + 1}. *${p.name}*\n💰 Narxi: *${p.price} UZS*\n📦 Omborda: *${p.stock} ta*\n📝 Tafsif: _${p.description || '—'}_\n`;
+  }).join('\n');
+
+  const text = `🛍️ *Do'konimizdagi so'nggi mahsulotlar:*\n\n${listText}\nBatafsil xaridlar uchun saytimizga o'ting!`;
+  sendTelegramMessage(botToken, chatId, text, makeMainMenuKeyboard());
+}
+
+function showOrders(botToken, chatId, user) {
+  const db = getDb();
+  const orders = db.prepare('SELECT * FROM orders WHERE userId = ? ORDER BY id DESC LIMIT 5').all();
+  
+  if (orders.length === 0) {
+    sendTelegramMessage(botToken, chatId, "Sizda hali buyurtmalar mavjud emas. 📦", makeMainMenuKeyboard());
+    return;
+  }
+
+  const listText = orders.map((o) => {
+    const items = JSON.parse(o.items || '[]');
+    const itemsSummary = items.map(i => `${i.name} (${i.quantity || 1} ta)`).join(', ');
+    return `📋 *Buyurtma #${o.id}*\n🛍️ Mahsulotlar: _${itemsSummary || '—'}_\n💵 Jami: *${(o.total || 0).toFixed(2)} UZS*\n⚡ Status: *${o.status}*\n`;
+  }).join('\n');
+
+  const text = `📦 *Sizning so'nggi buyurtmalaringiz:*\n\n${listText}`;
+  sendTelegramMessage(botToken, chatId, text, makeMainMenuKeyboard());
+}
+
+function sendTelegramMessage(botToken, chatId, text, replyMarkup = null) {
+  const payload = { 
+    chat_id: chatId, 
+    text,
+    parse_mode: 'Markdown'
+  };
+  if (replyMarkup) {
+    payload.reply_markup = replyMarkup;
+  }
+  const body = JSON.stringify(payload);
   const options = {
     hostname: 'api.telegram.org',
     path: `/bot${botToken}/sendMessage`,
