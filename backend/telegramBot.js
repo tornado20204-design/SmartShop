@@ -2,9 +2,13 @@ const https = require('https');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const { getDb } = require('./db');
+const smsService = require('./smsService');
 
 let pollingActive = false;
 let offset = 0;
+
+// Registration state machine memory
+const userStates = {};
 
 function startTelegramBot(botToken, baseUrl) {
   if (!botToken) {
@@ -81,7 +85,7 @@ function handleUpdate(botToken, update, baseUrl) {
   const chatId = msg.chat.id;
   const db = getDb();
   
-  // 1. Handle contact sharing (Account verification / register)
+  // 1. Handle contact sharing (Account verification / register start)
   if (msg.contact) {
     let phone = msg.contact.phone_number;
     const normalizedPhone = String(phone).replace(/\D/g, '');
@@ -92,16 +96,26 @@ function handleUpdate(botToken, update, baseUrl) {
       const text = `Muvaffaqiyatli bog'landi! ✅\n\nSalom, *${user.name}*! Endi siz do'konimiz xizmatlaridan bevosita Telegram orqali ham foydalana olasiz.`;
       sendTelegramMessage(botToken, chatId, text, makeMainMenuKeyboard());
     } else {
-      // Register a new user
-      const dummyPassword = bcrypt.hashSync(crypto.randomBytes(16).toString('hex'), 10);
-      const name = msg.contact.first_name || `Telegram User (${normalizedPhone.slice(-4)})`;
-      const email = `tg_${normalizedPhone}@smartshop.com`;
-      
-      const stmt = db.prepare('INSERT INTO users (name, email, phone, password, role, token, walletBalance, kycStatus) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
-      stmt.run(name, email, normalizedPhone, dummyPassword, 'user', String(chatId), 0, 'none');
-      
-      const text = `Tabriklaymiz! Siz ro'yxatdan o'tdingiz! 🎉\n\nSalom, *${name}*! SmartShop do'koniga xush kelibsiz. Quyidagi menyu orqali mahsulotlarni ko'rishingiz mumkin:`;
-      sendTelegramMessage(botToken, chatId, text, makeMainMenuKeyboard());
+      // Send OTP to phone number
+      const otpRes = smsService.sendMockSMS(normalizedPhone, '127.0.0.1');
+      if (otpRes.success) {
+        userStates[chatId] = {
+          step: 'AWAITING_OTP',
+          phone: normalizedPhone,
+          name: msg.contact.first_name || `Telegram User (${normalizedPhone.slice(-4)})`
+        };
+        
+        let text = `Telefon raqamingiz muvaffaqiyatli qabul qilindi! 📱\n\nSizning telefon raqamingizga 6 xonali tasdiqlash kodi yuborildi.`;
+        if (otpRes.code) {
+          text += `\n*(TEST REJIMIDA SMS KOD: \`${otpRes.code}\`)*`;
+        }
+        text += `\n\nIltimos, tasdiqlash kodini botga kiriting:`;
+        
+        sendTelegramMessage(botToken, chatId, text, JSON.stringify({ remove_keyboard: true }));
+      } else {
+        const text = `Xatolik yuz berdi: ${otpRes.message || 'SMS limitga duch keldingiz.'}\n\nIltimos birozdan so'ng qayta urinib ko'ring.`;
+        sendTelegramMessage(botToken, chatId, text, makeShareContactKeyboard());
+      }
     }
     return;
   }
@@ -109,6 +123,47 @@ function handleUpdate(botToken, update, baseUrl) {
   const rawText = (msg.text || '').trim();
   const text = rawText.toLowerCase();
   
+  // Reset/cancel state if start command is typed
+  if (text.startsWith('/start') || text.startsWith('start')) {
+    delete userStates[chatId];
+  }
+
+  const state = userStates[chatId];
+
+  // 2. Handle state machine (Awaiting OTP verification)
+  if (state && state.step === 'AWAITING_OTP') {
+    const verified = smsService.verifyOTP(state.phone, rawText);
+    if (verified.success) {
+      state.step = 'AWAITING_PASSWORD';
+      const text = `Tasdiqlash kodi muvaffaqiyatli qabul qilindi! ✅\n\nEndi saytga va botga kirish uchun yangi parol yarating (kamida 8 ta belgi):`;
+      sendTelegramMessage(botToken, chatId, text);
+    } else {
+      const text = `Xato: ${verified.message || 'Noto\'g\'ri tasdiqlash kodi.'}\n\nIltimos, kodni qaytadan kiritib ko'ring yoki /start orqali jarayonni bekor qiling:`;
+      sendTelegramMessage(botToken, chatId, text);
+    }
+    return;
+  }
+
+  // 3. Handle state machine (Awaiting password during registration)
+  if (state && state.step === 'AWAITING_PASSWORD') {
+    if (rawText.length < 8) {
+      const text = `Kiritilgan parol juda qisqa ⚠️\n\nIltimos, saytga va botga kirish uchun kamida 8 ta belgidan iborat parol yuboring:`;
+      sendTelegramMessage(botToken, chatId, text);
+    } else {
+      const hashedPassword = bcrypt.hashSync(rawText, 10);
+      const email = `tg_${state.phone}@smartshop.com`;
+      
+      const stmt = db.prepare('INSERT INTO users (name, email, phone, password, role, token, walletBalance, kycStatus) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+      stmt.run(state.name, email, state.phone, hashedPassword, 'user', String(chatId), 0, 'none');
+      
+      delete userStates[chatId];
+      
+      const successText = `Tabriklaymiz! Ro'yxatdan o'tish muvaffaqiyatli yakunlandi! 🎉\n\n👤 Loginingiz (Telefon): \`+${state.phone}\`\n🔑 Parolingiz: _Siz kiritgan maxfiy parol_\n\nEndi ushbu ma'lumotlar bilan veb-saytga ham kira olasiz! Quyidagi menyu orqali do'kondan foydalanishingiz mumkin:`;
+      sendTelegramMessage(botToken, chatId, successText, makeMainMenuKeyboard());
+    }
+    return;
+  }
+
   // Look up user by Telegram Chat ID
   let user = db.prepare('SELECT * FROM users WHERE token = ?').get(String(chatId));
 
