@@ -6,6 +6,7 @@ const smsService = require('./smsService');
 
 let pollingActive = false;
 let offset = 0;
+let lastTelegramErrorTime = 0;
 
 // Registration state machine memory
 const userStates = {};
@@ -51,7 +52,11 @@ function pollUpdates(botToken, baseUrl) {
   });
 
   req.on('error', (err) => {
-    console.error(`[TELEGRAM BOT ERROR] So'rovda xato: ${err.message}`);
+    const now = Date.now();
+    if (now - lastTelegramErrorTime > 5 * 60 * 1000) {
+      console.warn(`[TELEGRAM BOT] Internet ulanishi mavjud emas (Telegram API ga bog'lanib bo'lmadi): ${err.message}`);
+      lastTelegramErrorTime = now;
+    }
     // Wait 5 seconds before retrying on error
     setTimeout(() => pollUpdates(botToken, baseUrl), 5000);
   });
