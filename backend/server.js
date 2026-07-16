@@ -14,6 +14,7 @@ const { sendSMSNotification } = require('./smsNotification');
 const smsService = require('./smsService');
 const paymentService = require('./paymentService');
 const { sendOrderEmail, sendPasswordResetEmail } = require('./emailService');
+const { startTelegramBot } = require('./telegramBot');
 
 const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(48).toString('hex');
 const frontendDir = path.join(__dirname, '..', 'frontend');
@@ -1340,4 +1341,7 @@ server.listen(PORT, () => {
   logInfo('SERVER', `JWT_SECRET: ${JWT_SECRET.substring(0, 8)}... (${JWT_SECRET.length} belgi)`);
   console.log(`\n⚡ SmartShop v2.0 — http://localhost:${PORT}`);
   console.log(`📦 SQLite ma'lumotlar bazasi ishga tushdi`);
+  
+  // Start Telegram Bot Polling if configured
+  startTelegramBot(process.env.TELEGRAM_BOT_TOKEN, BASE_URL);
 });
