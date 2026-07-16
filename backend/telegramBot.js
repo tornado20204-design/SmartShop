@@ -14,7 +14,8 @@ function startTelegramBot(botToken, baseUrl) {
   if (pollingActive) return;
   pollingActive = true;
   
-  const botUsername = process.env.TELEGRAM_BOT_USERNAME || 'SmartShopBot';
+  let botUsername = process.env.TELEGRAM_BOT_USERNAME || 'SmartShopBot';
+  if (botUsername.startsWith('@')) botUsername = botUsername.slice(1);
   console.log(`[TELEGRAM BOT] @${botUsername} bot polling faollashtirildi...`);
   
   pollUpdates(botToken, baseUrl);

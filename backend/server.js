@@ -1,11 +1,11 @@
-// .env yuklash
-try { require('dotenv').config(); } catch(e) { /* dotenv mavjud emas */ }
-
 // ============================================================
 // SmartShop Backend Server v2.0 — SQLite + Xavfsiz versiya
 // ============================================================
-const http = require('http');
 const path = require('path');
+// .env yuklash
+try { require('dotenv').config({ path: path.join(__dirname, '.env') }); } catch(e) { /* dotenv mavjud emas */ }
+
+const http = require('http');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -392,7 +392,8 @@ const server = http.createServer(async (req, res) => {
         '', telegramToken, 0, '', ''
       );
 
-      const botUsername = process.env.TELEGRAM_BOT_USERNAME || 'SmartShopBot';
+      let botUsername = process.env.TELEGRAM_BOT_USERNAME || 'SmartShopBot';
+      if (botUsername.startsWith('@')) botUsername = botUsername.slice(1);
       const link = `https://t.me/${botUsername}?start=${telegramToken}`;
 
       logAudit(result.lastInsertRowid, 'user', 'REGISTER_TELEGRAM', result.lastInsertRowid, 'Telegram orqali ro\'yxatdan o\'tish boshlandi');
@@ -445,7 +446,8 @@ const server = http.createServer(async (req, res) => {
         user = db.prepare('SELECT * FROM users WHERE phone = ?').get(normalizedPhone);
       }
 
-      const botUsername = process.env.TELEGRAM_BOT_USERNAME || 'SmartShopBot';
+      let botUsername = process.env.TELEGRAM_BOT_USERNAME || 'SmartShopBot';
+      if (botUsername.startsWith('@')) botUsername = botUsername.slice(1);
       const link = `https://t.me/${botUsername}?start=${telegramToken}`;
 
       logAudit(user ? user.id : 0, user ? user.role : 'user', 'TELEGRAM_AUTH_START', normalizedPhone, 'Telegram orqali kirish/ro\'yxatdan o\'tish boshlandi');
