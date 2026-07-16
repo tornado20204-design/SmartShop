@@ -3289,7 +3289,7 @@ function showProfileOtpModal(callback) {
       <div id="profile-otp-error" style="display: none; color: #ef4444; font-size: 0.8rem; margin-bottom: 12px; padding: 8px 12px; background: #fef2f2; border-radius: 8px; text-align: left; border: 1px solid #fecaca;"></div>
       <button id="profile-otp-submit-btn" style="
         width: 100%; padding: 12px; border-radius: 10px; border: none;
-        background: var(--primary, #6366f1); color: white; font-size: 1rem; font-weight: bold;
+        background: var(--primary, #ffffff); color: var(--text-on-primary, #09090b); font-size: 1rem; font-weight: bold;
         cursor: pointer; transition: opacity 0.2s; margin-bottom: 10px;
       ">Tasdiqlash</button>
       <button id="profile-otp-cancel-btn" style="
