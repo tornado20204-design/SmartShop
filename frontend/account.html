@@ -32,11 +32,7 @@
           <div class="auth-tabs">
             <button type="button" id="tab-login" class="auth-tab active">Kirish</button>
             <button type="button" id="tab-register" class="auth-tab">Ro'yxatdan o'tish</button>
-          </div>
-
-          <div style="margin: 18px 0; text-align: center;">
-            <input id="telegram-bot-username" type="text" placeholder="@SmartShopBot" style="width: 100%; max-width: 320px; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); background: rgba(11, 15, 25, 0.7); color: white; font-size: 0.95rem;" />
-            <p style="margin-top: 10px; color: var(--text-muted); font-size: 0.9rem;">Telegram bot username-ni kiriting va keyin bot orqali kirish/ro'yxatdan o'tishni bosing.</p>
+            <button type="button" id="tab-telegram" class="auth-tab">Telegram orqali</button>
           </div>
 
           <!-- Login Section -->
@@ -46,10 +42,6 @@
               <input id="login-password" type="password" placeholder="Parol" required />
               <button type="submit">Kirish</button>
             </form>
-            <div style="margin: 18px 0; text-align: center;">
-              <button type="button" id="telegram-login-btn" style="width: 100%; max-width: 320px; padding: 12px; background: #0088cc; border: none; color: white; border-radius: 10px; font-weight: 700; cursor: pointer;">Telegram orqali kirish</button>
-              <p style="margin-top: 10px; color: var(--text-muted); font-size: 0.9rem;">Botga o'ting va hisobingizni tasdiqlang. Keyin saytga qayting.</p>
-            </div>
             <p id="login-message" class="message"></p>
             <p style="text-align: right; margin-top: 8px;"><a href="#" id="forgot-password-link" style="color: var(--primary); font-size: 0.9rem; text-decoration: none;">Parolni unutdingizmi?</a></p>
             <p class="auth-toggle-text">Akauntingiz yo'qmi? <a href="#" id="go-to-register">Ro'yxatdan o'tish</a></p>
@@ -128,11 +120,6 @@
               </div>
 
               <button type="submit">Ro'yxatdan o'tish (SMS Kod yuborish)</button>
-
-              <div style="margin: 18px 0; text-align: center;">
-                <button type="button" id="telegram-register-btn" style="width: 100%; max-width: 320px; padding: 12px; background: #0088cc; border: none; color: white; border-radius: 10px; font-weight: 700; cursor: pointer;">Telegram orqali ro'yxatdan o'tish</button>
-                <p style="margin-top: 10px; color: var(--text-muted); font-size: 0.9rem;">Botga o'ting va telefon raqamingizni tasdiqlang, so'ng saytga qaytib kodni kiriting.</p>
-              </div>
             </form>
 
             <!-- Register Step 2: Name, Email, Password -->
@@ -146,6 +133,18 @@
 
             <p id="register-message" class="message"></p>
             <p class="auth-toggle-text">Sizda allaqachon akaunt bormi? <a href="#" id="go-to-login">Kirish</a></p>
+          </div>
+
+          <!-- Telegram Auth Section -->
+          <div id="telegram-section" style="display: none;">
+            <form id="telegram-auth-form">
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px; text-align: center;">
+                Telefon raqamingizni kiriting. Biz sizni Telegram botimizga yo'naltiramiz.
+              </p>
+              <input id="telegram-phone" type="tel" placeholder="Telefon raqami (+998...)" required style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); background: rgba(11, 15, 25, 0.7); color: white; font-size: 0.95rem; margin-bottom: 12px;" />
+              <button type="submit" style="width: 100%; padding: 12px; background: #0088cc; border: none; color: white; border-radius: 10px; font-weight: 700; cursor: pointer;">Telegram Botga o'tish ✈️</button>
+            </form>
+            <p id="telegram-message" class="message" style="margin-top: 12px; text-align: center;"></p>
           </div>
         </section>
       </div>
@@ -373,6 +372,7 @@
             <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px;">Barcha keshbek fondlari nazorati</div>
           </div>
 
+          <button id="admin-edit-profile-btn" style="margin-top: 12px; width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--primary); background: transparent; color: var(--primary); cursor: pointer; font-weight: bold;">Profilni tahrirlash</button>
           <button id="admin-logout-button" class="logout-btn" style="margin-top: 16px; width: 100%;">Chiqish</button>
         </section>
 
@@ -584,6 +584,71 @@
                 </div>
               </div>
 
+              <!-- Admin & Director Management -->
+              <div style="background: rgba(11, 15, 25, 0.4); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-top: 24px;">
+                <h3 style="color: white; margin-bottom: 16px; font-size: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">🔑 Adminlar va Direktorlar Boshqaruvi</h3>
+                
+                <!-- Table of Admins/Directors -->
+                <div style="overflow-x: auto; margin-bottom: 20px;">
+                  <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left; color: var(--text-main);">
+                    <thead>
+                      <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-muted);">
+                        <th style="padding: 12px 10px;">ID</th>
+                        <th style="padding: 12px 10px;">Ism</th>
+                        <th style="padding: 12px 10px;">Login (Email)</th>
+                        <th style="padding: 12px 10px;">Rol</th>
+                        <th style="padding: 12px 10px;">Sohasi (Specialization)</th>
+                        <th style="padding: 12px 10px; text-align: center;">Amallar</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dir-admins-table">
+                      <tr><td colspan="6" style="padding: 20px; text-align: center; color: var(--text-muted);">Yuklanmoqda...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Admin Edit Modal / Inline Form -->
+                <div id="dir-admin-edit-form-container" style="display: none; background: rgba(11, 15, 25, 0.6); border: 1px solid var(--border-color); padding: 15px; border-radius: 12px;">
+                  <h4 id="edit-admin-title" style="color: white; margin-bottom: 12px;">Adminni tahrirlash</h4>
+                  <form id="dir-admin-edit-form" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <input type="hidden" id="edit-admin-id" />
+                    <div>
+                      <label style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 4px;">Ism</label>
+                      <input type="text" id="edit-admin-name" required placeholder="Ism" />
+                    </div>
+                    <div>
+                      <label style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 4px;">Login (Email)</label>
+                      <input type="text" id="edit-admin-email" required placeholder="Login (Email)" />
+                    </div>
+                    <div>
+                      <label style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 4px;">Rol</label>
+                      <select id="edit-admin-role" style="color: white; background: #161b22; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; width: 100%;">
+                        <option value="admin">Admin</option>
+                        <option value="director">Direktor</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 4px;">Sohasi (Specialization)</label>
+                      <select id="edit-admin-spec" style="color: white; background: #161b22; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; width: 100%;">
+                        <option value="">Hammasi (Full)</option>
+                        <option value="products">Mahsulotlar (Products)</option>
+                        <option value="delivery">Yetkazib berish (Delivery)</option>
+                        <option value="support">Qo'llab-quvvatlash (Support)</option>
+                      </select>
+                    </div>
+                    <div style="grid-column: span 2;">
+                      <label style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 4px;">Yangi Parol (Agar o'zgartirmoqchi bo'lsangiz bo'sh qoldiring)</label>
+                      <input type="password" id="edit-admin-password" placeholder="Yangi parol (ixtiyoriy)" />
+                    </div>
+                    <div style="grid-column: span 2; display: flex; gap: 10px; margin-top: 10px;">
+                      <button type="submit" style="padding: 10px 20px; background: var(--success); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white;">Saqlash</button>
+                      <button type="button" id="cancel-edit-admin-btn" style="padding: 10px 20px; background: var(--border-color); border: none; border-radius: 8px; cursor: pointer; color: var(--text-main);">Bekor qilish</button>
+                    </div>
+                  </form>
+                  <p id="edit-admin-message" class="message" style="margin-top: 10px;"></p>
+                </div>
+              </div>
+
               <!-- System Actions Audit (Append-only logs table) -->
               <div style="background: rgba(11, 15, 25, 0.4); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-top: 24px;">
                 <h3 style="color: white; margin-bottom: 16px; font-size: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">🛡️ Tizim harakatlari auditi (Audit Log)</h3>
@@ -638,6 +703,10 @@
             <div class="form-group">
               <label for="edit-profile-avatar" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">Rasm URL (ixtiyoriy)</label>
               <input type="url" id="edit-profile-avatar" placeholder="Rasm URL (ixtiyoriy)" />
+            </div>
+            <div class="form-group">
+              <label for="edit-profile-password" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">Yangi Parol (bo'sh qolishi mumkin)</label>
+              <input type="password" id="edit-profile-password" placeholder="Yangi parol (kamida 8 belgi)" minlength="8" />
             </div>
             <div class="form-group">
               <label for="edit-profile-bank" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">Karta yoki Bank hisob raqami</label>

@@ -2110,6 +2110,28 @@ async function loadDirectorAudit() {
       `).join('');
     }
 
+    // 4.1. Render Admins & Directors Table
+    const adminsTable = document.getElementById('dir-admins-table');
+    if (adminsTable) {
+      const adminsAndDirectors = users.filter(u => u.role === 'admin' || u.role === 'director');
+      if (adminsAndDirectors.length === 0) {
+        adminsTable.innerHTML = `<tr><td colspan="6" style="padding: 20px; text-align: center; color: var(--text-muted);">Adminlar va direktorlar topilmadi.</td></tr>`;
+      } else {
+        adminsTable.innerHTML = adminsAndDirectors.map(a => `
+          <tr style="border-bottom: 1px solid var(--border-color);">
+            <td style="padding: 12px 10px; color: var(--text-muted);">${a.id}</td>
+            <td style="padding: 12px 10px; font-weight: 600; color: white;">${a.name}</td>
+            <td style="padding: 12px 10px; color: var(--text-muted);">${a.email}</td>
+            <td style="padding: 12px 10px;"><span style="background: ${a.role === 'director' ? 'rgba(168, 85, 247, 0.15)' : 'rgba(59, 130, 246, 0.15)'}; color: ${a.role === 'director' ? '#a855f7' : '#3b82f6'}; font-size: 0.8rem; padding: 4px 10px; border-radius: 6px; font-weight: bold;">${a.role.toUpperCase()}</span></td>
+            <td style="padding: 12px 10px; color: white;">${a.specialization ? a.specialization.toUpperCase() : 'Barchasi (Full)'}</td>
+            <td style="padding: 12px 10px; text-align: center;">
+              <button onclick="editAdminUser(${JSON.stringify(a).replace(/"/g, '&quot;')})" style="padding: 6px 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: bold;">Tahrirlash</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+    }
+
     // 5. Render Audit Logs Table
     const logsTable = document.getElementById('dir-audit-logs-table');
     if (logsTable) {
@@ -2637,8 +2659,10 @@ if (adminProductForm) {
 function setupAuthTabs() {
   const tabLogin = document.getElementById('tab-login');
   const tabRegister = document.getElementById('tab-register');
+  const tabTelegram = document.getElementById('tab-telegram');
   const loginSection = document.getElementById('login-section');
   const registerSection = document.getElementById('register-section');
+  const telegramSection = document.getElementById('telegram-section');
   const goToRegister = document.getElementById('go-to-register');
   const goToLogin = document.getElementById('go-to-login');
 
@@ -2647,21 +2671,38 @@ function setupAuthTabs() {
   const showLogin = () => {
     tabLogin.classList.add('active');
     tabRegister.classList.remove('active');
+    if (tabTelegram) tabTelegram.classList.remove('active');
     loginSection.style.display = 'block';
     registerSection.style.display = 'none';
+    if (telegramSection) telegramSection.style.display = 'none';
     resetRegisterForms();
   };
 
   const showRegister = () => {
     tabRegister.classList.add('active');
     tabLogin.classList.remove('active');
+    if (tabTelegram) tabTelegram.classList.remove('active');
     registerSection.style.display = 'block';
     loginSection.style.display = 'none';
+    if (telegramSection) telegramSection.style.display = 'none';
+    resetRegisterForms();
+  };
+
+  const showTelegram = () => {
+    if (tabTelegram) {
+      tabTelegram.classList.add('active');
+      tabLogin.classList.remove('active');
+      tabRegister.classList.remove('active');
+    }
+    if (telegramSection) telegramSection.style.display = 'block';
+    loginSection.style.display = 'none';
+    registerSection.style.display = 'none';
     resetRegisterForms();
   };
 
   tabLogin.onclick = showLogin;
   tabRegister.onclick = showRegister;
+  if (tabTelegram) tabTelegram.onclick = showTelegram;
 
   if (goToRegister) {
     goToRegister.onclick = (e) => {
@@ -2694,6 +2735,13 @@ function resetRegisterForms() {
     registerMessage.textContent = '';
     registerMessage.className = 'message';
   }
+  const tgMessage = document.getElementById('telegram-message');
+  if (tgMessage) {
+    tgMessage.textContent = '';
+    tgMessage.className = 'message';
+  }
+  const tgPhone = document.getElementById('telegram-phone');
+  if (tgPhone) tgPhone.value = '';
 }
 
 let pendingRegistration = null;
@@ -2773,60 +2821,60 @@ if (isSellerCheckbox && kycFieldsContainer) {
   });
 }
 
-const telegramBotInput = document.getElementById('telegram-bot-username');
-const telegramLoginBtn = document.getElementById('telegram-login-btn');
-const telegramRegisterBtn = document.getElementById('telegram-register-btn');
+const telegramAuthForm = document.getElementById('telegram-auth-form');
+const telegramMessage = document.getElementById('telegram-message');
 
-function getTelegramBotUsername() {
-  if (!telegramBotInput) return '';
-  let name = telegramBotInput.value.trim();
-  if (!name) return '';
-  if (name.startsWith('@')) name = name.slice(1);
-  return name;
-}
-
-function openTelegramBot(startPayload) {
-  const botUsername = getTelegramBotUsername();
-  if (!botUsername) {
-    showToast('Iltimos, Telegram bot username-ni kiriting.', 'error');
-    return;
-  }
-
-  const simModal = document.getElementById('telegram-sim-modal');
-  if (simModal) {
-    simModal.classList.add('active');
-    const simInput = document.getElementById('tg-sim-input');
-    if (simInput) {
-      simInput.value = `/start ${startPayload}`;
+if (telegramAuthForm) {
+  telegramAuthForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const phone = document.getElementById('telegram-phone').value.trim();
+    if (!isValidPhone(phone)) {
+      telegramMessage.textContent = 'Telefon raqamingizni +998XXYYYYYYY formatida kiriting.';
+      telegramMessage.className = 'message error';
+      return;
     }
-  }
 
-  try {
-    const encodedPayload = encodeURIComponent(startPayload || 'start');
-    const tgUrl = `tg://resolve?domain=${botUsername}&start=${encodedPayload}`;
-    window.open(tgUrl, '_blank');
-  } catch (e) {
-    console.log("Deep link redirect prevented.");
-  }
-}
+    telegramMessage.textContent = 'Yo\'naltirilmoqda...';
+    telegramMessage.className = 'message info';
 
-if (telegramLoginBtn) {
-  telegramLoginBtn.addEventListener('click', () => {
-    const loginIdentifier = document.getElementById('login-email').value.trim();
-    const payload = loginIdentifier ? `login_${encodeURIComponent(loginIdentifier)}` : 'login';
-    openTelegramBot(payload);
+    try {
+      const res = await fetch(`${apiBase}/api/auth/telegram-start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone })
+      });
+      const data = await res.json();
+      
+      if (res.ok && data.success) {
+        telegramMessage.textContent = 'Muvaffaqiyatli! Telegram bot ochilmoqda...';
+        telegramMessage.className = 'message success';
+
+        // Check if there is a local Telegram simulator modal
+        const simModal = document.getElementById('telegram-sim-modal');
+        if (simModal) {
+          simModal.classList.add('active');
+          const simInput = document.getElementById('tg-sim-input');
+          if (simInput) {
+            simInput.value = `/start ${data.token}`;
+          }
+        }
+
+        // Open real Telegram link
+        try {
+          window.open(data.link, '_blank');
+        } catch (err) {
+          console.log("Deep link redirect prevented.");
+        }
+      } else {
+        telegramMessage.textContent = data.message || 'Xatolik yuz berdi';
+        telegramMessage.className = 'message error';
+      }
+    } catch (err) {
+      telegramMessage.textContent = 'Server bilan ulanishda xato.';
+      telegramMessage.className = 'message error';
+    }
   });
 }
-
-
-  if (telegramRegisterBtn) {
-    telegramRegisterBtn.addEventListener('click', () => {
-      const phone = document.getElementById('register-phone').value.trim();
-      const normalizedPhone = normalizePhone(phone);
-      const payload = isValidPhone(phone) ? `register_${normalizedPhone}` : 'register';
-      openTelegramBot(payload);
-    });
-  }
 
   if (registerFormStep1) {
     registerFormStep1.addEventListener('submit', async (event) => {
@@ -3208,6 +3256,8 @@ function openProfileModal() {
 
 if (userEditProfileBtn) userEditProfileBtn.onclick = openProfileModal;
 if (sellerEditProfileBtn) sellerEditProfileBtn.onclick = openProfileModal;
+const adminEditProfileBtn = document.getElementById('admin-edit-profile-btn');
+if (adminEditProfileBtn) adminEditProfileBtn.onclick = openProfileModal;
 if (closeProfileModalBtn) {
   closeProfileModalBtn.onclick = () => { profileEditModal.classList.remove('active'); };
 }
@@ -3279,6 +3329,8 @@ if (profileEditForm) {
     const avatar = document.getElementById('edit-profile-avatar').value;
     const bankEl = document.getElementById('edit-profile-bank');
     const bankDetails = bankEl ? bankEl.value.trim() : '';
+    const passwordEl = document.getElementById('edit-profile-password');
+    const password = passwordEl ? passwordEl.value : '';
     
     // Validate bank account / card format (16 or 20 digits only)
     const cleanedBank = bankDetails.replace(/\s/g, '');
@@ -3293,6 +3345,9 @@ if (profileEditForm) {
     try {
       const sendProfileUpdate = async (otpCode = null) => {
         const payload = { name, email, phone, avatar, addresses, bankDetails };
+        if (password && password.trim().length >= 8) {
+          payload.password = password;
+        }
         if (otpCode) {
           payload.otpCode = otpCode;
         }
@@ -3346,6 +3401,7 @@ if (profileEditForm) {
             });
           } else {
             showToast(data.message);
+            if (passwordEl) passwordEl.value = '';
             localStorage.setItem('currentUser', JSON.stringify(data.user));
             if (data.token) localStorage.setItem('authToken', data.token);
             profileEditModal.classList.remove('active');
@@ -3666,6 +3722,18 @@ async function syncUserProfile() {
   } catch(e) {}
 }
 
+window.editAdminUser = function(user) {
+  document.getElementById('edit-admin-id').value = user.id;
+  document.getElementById('edit-admin-name').value = user.name;
+  document.getElementById('edit-admin-email').value = user.email;
+  document.getElementById('edit-admin-role').value = user.role;
+  document.getElementById('edit-admin-spec').value = user.specialization || '';
+  document.getElementById('edit-admin-password').value = '';
+  document.getElementById('edit-admin-message').textContent = '';
+  document.getElementById('dir-admin-edit-form-container').style.display = 'block';
+  document.getElementById('edit-admin-title').textContent = `Tahrirlash: ${user.name} (ID: ${user.id})`;
+};
+
 document.addEventListener('DOMContentLoaded', async () => {
   loadCurrentUser();
   await syncUserProfile();
@@ -3676,4 +3744,60 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadDashboard();
   setupAuthTabs();
   checkTelegramAuth();
+
+  // Director Admin Edit cancel button
+  const cancelEditBtn = document.getElementById('cancel-edit-admin-btn');
+  if (cancelEditBtn) {
+    cancelEditBtn.onclick = () => {
+      document.getElementById('dir-admin-edit-form-container').style.display = 'none';
+    };
+  }
+
+  // Director Admin Edit form submit
+  const editAdminForm = document.getElementById('dir-admin-edit-form');
+  if (editAdminForm) {
+    editAdminForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const token = localStorage.getItem('authToken');
+      const authHeaders = { 
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json'
+      };
+
+      const id = document.getElementById('edit-admin-id').value;
+      const name = document.getElementById('edit-admin-name').value;
+      const email = document.getElementById('edit-admin-email').value;
+      const role = document.getElementById('edit-admin-role').value;
+      const specialization = document.getElementById('edit-admin-spec').value;
+      const password = document.getElementById('edit-admin-password').value;
+
+      const msgEl = document.getElementById('edit-admin-message');
+      msgEl.textContent = 'Saqlanmoqda...';
+      msgEl.className = 'message';
+
+      try {
+        const response = await fetch(`${apiBase}/api/users/admin-edit`, {
+          method: 'PUT',
+          headers: authHeaders,
+          body: JSON.stringify({ userId: id, name, email, role, specialization, password })
+        });
+        const resData = await response.json();
+        if (response.ok && resData.success) {
+          msgEl.textContent = 'Muvaffaqiyatli saqlandi!';
+          msgEl.className = 'message success';
+          showToast('Foydalanuvchi muvaffaqiyatli tahrirlandi.', 'success');
+          setTimeout(() => {
+            document.getElementById('dir-admin-edit-form-container').style.display = 'none';
+            loadDirectorAudit();
+          }, 1500);
+        } else {
+          msgEl.textContent = resData.message || 'Xatolik yuz berdi';
+          msgEl.className = 'message error';
+        }
+      } catch (err) {
+        msgEl.textContent = 'Server bilan ulanishda xato.';
+        msgEl.className = 'message error';
+      }
+    };
+  }
 });

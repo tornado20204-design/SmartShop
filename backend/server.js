@@ -404,6 +404,60 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // ===== TELEGRAM START AUTH (POST) =====
+    if (req.method === 'POST' && url.pathname === '/api/auth/telegram-start') {
+      const data = await getRequestBody(req);
+      const { phone } = data;
+
+      if (!phone) {
+        sendJson(res, 400, { message: 'Telefon raqami kiritilishi shart' });
+        return;
+      }
+
+      // Normalize phone number
+      const normalizedPhone = String(phone).replace(/\D/g, '');
+      if (normalizedPhone.length < 9) {
+        sendJson(res, 400, { message: 'Telefon raqami noto\'g\'ri formatda' });
+        return;
+      }
+
+      let user = db.prepare('SELECT * FROM users WHERE phone = ? OR email = ?').get(normalizedPhone, normalizedPhone);
+      const telegramToken = crypto.randomBytes(24).toString('hex');
+
+      if (user) {
+        // User already exists, update their telegramToken
+        db.prepare('UPDATE users SET telegramToken = ? WHERE id = ?').run(telegramToken, user.id);
+      } else {
+        // Create a new user with dummy details
+        const dummyPassword = await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 10);
+        const name = `Telegram User (${normalizedPhone.slice(-4)})`;
+        const email = `tg_${normalizedPhone}@smartshop.com`;
+        
+        const stmt = db.prepare('INSERT INTO users (name, email, phone, password, role, walletBalance, avatar, bankDetails, passportNumber, birthDate, sellerType, passportPhoto, selfieUrl, kycStatus, token, telegramToken, rejectionCount, rejectionReason, specialization) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        stmt.run(
+          name, email, normalizedPhone, dummyPassword,
+          'user', 0, '', '',
+          '', '', 'jismoniy',
+          '', '', 'none',
+          '', telegramToken, 0, '', ''
+        );
+        user = db.prepare('SELECT * FROM users WHERE phone = ?').get(normalizedPhone);
+      }
+
+      const botUsername = process.env.TELEGRAM_BOT_USERNAME || 'SmartShopBot';
+      const link = `https://t.me/${botUsername}?start=${telegramToken}`;
+
+      logAudit(user ? user.id : 0, user ? user.role : 'user', 'TELEGRAM_AUTH_START', normalizedPhone, 'Telegram orqali kirish/ro\'yxatdan o\'tish boshlandi');
+
+      sendJson(res, 200, {
+        success: true,
+        message: 'Telegram bot havolasi tayyorlandi',
+        link,
+        token: telegramToken
+      });
+      return;
+    }
+
     // ===== LOGIN =====
     if (req.method === 'POST' && url.pathname === '/api/login') {
       const data = await getRequestBody(req);
@@ -416,7 +470,7 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
-      const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+      const user = db.prepare('SELECT * FROM users WHERE email = ? OR id = ? OR name = ?').get(email, Number(email) || -1, email);
       if (!user) {
         recordLoginAttempt(ip, email, false);
         sendJson(res, 401, { message: 'Email yoki parol noto\'g\'ri' });
@@ -772,6 +826,39 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // ===== ADMIN EDIT (PUT) =====
+    if (req.method === 'PUT' && url.pathname === '/api/users/admin-edit') {
+      const userAuth = authenticate(req);
+      if (!userAuth || userAuth.role !== 'director') {
+        sendJson(res, 403, { message: 'Ruxsat faqat Direktorga berilgan' }); return;
+      }
+      const data = await getRequestBody(req);
+      const { userId, name, email, role, specialization, password } = data;
+
+      if (!userId || !name || !email || !role) {
+        sendJson(res, 400, { message: 'Barcha maydonlar majburiy' }); return;
+      }
+
+      // Check email uniqueness
+      const existing = db.prepare('SELECT id FROM users WHERE email = ? AND id != ?').get(email, Number(userId));
+      if (existing) {
+        sendJson(res, 400, { message: 'Bu email/login boshqa foydalanuvchida allaqachon mavjud' }); return;
+      }
+
+      if (password && password.trim().length > 0) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        db.prepare('UPDATE users SET name = ?, email = ?, role = ?, specialization = ?, password = ? WHERE id = ?')
+          .run(escapeHtml(name), email, role, specialization || '', hashedPassword, Number(userId));
+      } else {
+        db.prepare('UPDATE users SET name = ?, email = ?, role = ?, specialization = ? WHERE id = ?')
+          .run(escapeHtml(name), email, role, specialization || '', Number(userId));
+      }
+
+      logAudit(userAuth.id, userAuth.role, 'ADMIN_EDIT', userId, `Admin/Direktor tahrirlandi: ${name} (${role})`);
+      sendJson(res, 200, { success: true, message: 'Foydalanuvchi muvaffaqiyatli yangilandi' });
+      return;
+    }
+
     // ===== USERS KYC =====
     if (req.method === 'POST' && url.pathname === '/api/users/kyc') {
       const user = authenticate(req);
@@ -884,6 +971,9 @@ const server = http.createServer(async (req, res) => {
       if (data.avatar !== undefined) updates.avatar = data.avatar;
       if (data.bankDetails !== undefined) updates.bankDetails = data.bankDetails;
       if (data.addresses !== undefined) updates.addresses = Array.isArray(data.addresses) ? data.addresses.join('\n') : data.addresses;
+      if (data.password !== undefined && data.password.trim().length >= 8) {
+        updates.password = await bcrypt.hash(data.password, 10);
+      }
 
       if (Object.keys(updates).length > 0) {
         const setClause = Object.keys(updates).map(k => `${k} = ?`).join(', ');
