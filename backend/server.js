@@ -15,6 +15,8 @@ const smsService = require('./smsService');
 const paymentService = require('./paymentService');
 const { sendOrderEmail, sendPasswordResetEmail } = require('./emailService');
 
+const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(48).toString('hex');
+const frontendDir = path.join(__dirname, '..', 'frontend');
 const BASE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
 const uploadsDir = path.join(__dirname, 'uploads');
 
@@ -253,6 +255,7 @@ function isRateLimited(req) {
   return false;
 }
 
+const server = http.createServer(async (req, res) => {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -277,6 +280,7 @@ function isRateLimited(req) {
   const startTime = Date.now();
   const db = getDb();
 
+  try {
     // ===== HEALTH CHECK (for Render) =====
     if (url.pathname === '/health' || url.pathname === '/') {
       if (url.pathname === '/health') {

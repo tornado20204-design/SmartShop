@@ -3,6 +3,8 @@
 // ============================================================
 const nodemailer = require('nodemailer');
 
+const BASE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
+
 let transporter = null;
 
 function getTransporter() {
@@ -98,7 +100,7 @@ async function sendOrderEmail(userEmail, userName, orderDetails) {
           `}
 
           <p style="color:#6b7280;font-size:13px;margin-top:20px;">
-            Buyurtmangizni kuzatish: <a href="http://localhost:3000/delivery.html?orderId=${orderDetails.id}" style="color:#6366f1;">http://localhost:3000/delivery.html?orderId=${orderDetails.id}</a>
+            Buyurtmangizni kuzatish: <a href="${BASE_URL}/delivery.html?orderId=${orderDetails.id}" style="color:#6366f1;">${BASE_URL}/delivery.html?orderId=${orderDetails.id}</a>
           </p>
         </div>
       </div>
