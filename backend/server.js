@@ -15,6 +15,7 @@ const smsService = require('./smsService');
 const paymentService = require('./paymentService');
 const { sendOrderEmail, sendPasswordResetEmail } = require('./emailService');
 const { startTelegramBot } = require('./telegramBot');
+const aiClient = require('./aiClient');
 
 const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(48).toString('hex');
 const frontendDir = path.join(__dirname, '..', 'frontend');
@@ -458,6 +459,22 @@ const server = http.createServer(async (req, res) => {
         link,
         token: telegramToken
       });
+      return;
+    }
+
+    // ===== AI (POST) =====
+    if (req.method === 'POST' && url.pathname === '/api/ai') {
+      const data = await getRequestBody(req);
+      const prompt = data && data.prompt;
+      const model = data && data.model;
+      if (!prompt) { sendJson(res, 400, { message: 'Prompt (prompt) majburiy' }); return; }
+      try {
+        const aiResult = await aiClient.callModel(prompt, model);
+        sendJson(res, 200, { success: true, result: aiResult });
+      } catch (err) {
+        logError('AI', err.message || 'Unknown', err.stack);
+        sendJson(res, 500, { message: `AI so'rovida xato: ${err.message || 'server error'}`, details: err.body || null });
+      }
       return;
     }
 
